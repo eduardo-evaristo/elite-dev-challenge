@@ -1,0 +1,8 @@
+{
+  "name": "elite_dev_verzel_challenge",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
