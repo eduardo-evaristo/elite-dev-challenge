@@ -11,6 +11,7 @@ const router = createRouter({
   routeTree,
   defaultPreload: 'intent',
   scrollRestoration: true,
+  context: { queryClient },
 });
 
 // Register things for typesafety
