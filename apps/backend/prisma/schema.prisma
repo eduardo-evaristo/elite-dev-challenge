@@ -1,0 +1,195 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  CLIENT
+  ORGANIZER
+  GATE
+  ADMIN
+}
+
+enum EventType {
+  SHOW
+  MOVIE
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+}
+
+enum ExternalSource {
+  TMDB
+  TICKETMASTER
+}
+
+enum SeatStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+}
+
+enum ReservationStatus {
+  PENDING // criada, aguardando pagamento
+  CONFIRMED // pagamento aprovado -> ticket emitido
+  CANCELLED // cancelada pelo cliente/organizador
+}
+
+enum PaymentStatus {
+  APPROVED
+  DECLINED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  lastName  String
+  email     String   @unique
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizedEvents Event[]       @relation("OrganizerEvents")
+  reservations    Reservation[]
+  tickets         Ticket[]
+
+  @@map("users")
+}
+
+model Event {
+  id       String      @id @default(uuid())
+  name     String
+  date     DateTime
+  location String
+  type     EventType
+  status   EventStatus @default(DRAFT)
+
+  // rastreabilidade do catálogo externo
+  externalId     String
+  externalSource ExternalSource
+
+  organizerId String
+  organizer   User   @relation("OrganizerEvents", fields: [organizerId], references: [id])
+
+  // modelo "assento nomeado" (cinema/teatro)
+  seats Seat[]
+
+  // modelo "pista" com setores (ex.: Pista, Pista Premium, Camarote)
+  // um evento com assento nomeado simplesmente não popula ticketTypes
+  ticketTypes TicketType[]
+
+  reservations Reservation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([externalId, externalSource]) // rastreabilidade
+  @@index([status, date])
+  @@map("events")
+}
+
+// ==========================================
+// TicketType
+// setor de pista (ex.: "Pista", "Pista Premium", "Camarote")
+// cada evento sem assento precisa ter >= 1 TicketType
+// ==========================================
+
+model TicketType {
+  id             String  @id @default(uuid())
+  eventId        String
+  event          Event   @relation(fields: [eventId], references: [id])
+  name           String // "Pista", "Pista Premium", "Ingresso único"
+  price          Decimal @db.Decimal(10, 2)
+  capacity       Int
+  availableCount Int
+
+  reservations Reservation[]
+
+  @@index([eventId])
+  @@map("ticket_types")
+}
+
+model Seat {
+  id      String     @id @default(uuid())
+  eventId String
+  event   Event      @relation(fields: [eventId], references: [id])
+  row     String
+  number  Int
+  status  SeatStatus @default(AVAILABLE)
+
+  reservation Reservation?
+
+  @@unique([eventId, row, number]) // não pode haver dois assentos iguais no mesmo evento
+  @@map("seats")
+}
+
+// ==========================================
+// Reservation
+// representa a tentativa de compra: reserva -> paga -> (confirma ou recusa)
+// é aqui que mora a garantia de "mesmo lugar não vendido duas vezes"
+// ==========================================
+
+model Reservation {
+  id      String @id @default(uuid())
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id])
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+
+  //dependendo do tipo de evento:
+
+  // (a) assento nomeado
+  seatId String? @unique // unique -> um seat só pode ter 1 reservation vinculada
+  seat   Seat?   @relation(fields: [seatId], references: [id])
+
+  // (b) pista/setor
+  ticketTypeId String?
+  ticketType   TicketType? @relation(fields: [ticketTypeId], references: [id])
+
+  status        ReservationStatus @default(PENDING)
+  paymentStatus PaymentStatus?
+
+  ticket Ticket?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([eventId, status])
+  @@map("reservations")
+}
+
+// ==========================================
+// Ticket
+// só é criado quando Reservation.status = CONFIRMED
+// ==========================================
+
+model Ticket {
+  id            String      @id @default(uuid())
+  reservationId String      @unique
+  reservation   Reservation @relation(fields: [reservationId], references: [id])
+
+  // denormalizado por conveniência de query em "meus ingressos"
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  signature String // HMAC-SHA256(payload, TICKET_SECRET)
+  usedAt    DateTime? // null = ainda não validado na portaria
+
+  createdAt DateTime @default(now())
+
+  @@map("tickets")
+}
