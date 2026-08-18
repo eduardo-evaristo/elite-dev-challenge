@@ -14,6 +14,7 @@ import { WizardProgress } from '@/features/events/components/wizard-progress';
 import { WizardFooter } from '@/features/events/components/wizard-footer';
 import { StepType } from '@/features/events/components/step-type';
 import { StepCatalog } from '@/features/events/components/step-catalog';
+import { StepFormat } from '@/features/events/components/step-format';
 
 export const Route = createFileRoute(
   '/_authenticated/organizador/eventos/novo',
@@ -80,11 +81,61 @@ function NovoEventoComponent() {
     });
   };
 
+  const onContinueStep3 = () => {
+    navigate({
+      search: (prev) => ({ ...prev, step: 4 }),
+    });
+  };
+
+  const onFormatChange = (format: 'seated' | 'standing') => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        format,
+        rows: format === 'seated' ? prev.rows : undefined,
+        seatsPerRow: format === 'seated' ? prev.seatsPerRow : undefined,
+        sectors: format === 'standing' ? prev.sectors : undefined,
+      }),
+    });
+  };
+
+  const onSeatedConfigChange = (
+    rows: number | undefined,
+    seatsPerRow: number | undefined,
+  ) => {
+    navigate({
+      search: (prev) => ({ ...prev, rows, seatsPerRow }),
+    });
+  };
+
+  const onSectorsChange = (sectors: string | undefined) => {
+    navigate({
+      search: (prev) => ({ ...prev, sectors }),
+    });
+  };
+
   const selectedType = useWatch({ control: form.control, name: 'type' });
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const isStep1 = search.step === 1;
   const isStep2 = search.step === 2;
+  const isStep3 = search.step === 3;
+
+  const isStep3Valid = (() => {
+    if (!search.format) return false;
+    if (search.format === 'seated') {
+      return (search.rows ?? 0) >= 1 && (search.seatsPerRow ?? 0) >= 1;
+    }
+    try {
+      const parsed = search.sectors ? JSON.parse(search.sectors) : [];
+      return (
+        Array.isArray(parsed) &&
+        parsed.some((s: { name?: string }) => s.name?.trim())
+      );
+    } catch {
+      return false;
+    }
+  })();
 
   return (
     <div className='flex h-screen flex-col overflow-hidden bg-paper'>
@@ -96,7 +147,7 @@ function NovoEventoComponent() {
         <WizardProgress step={search.step} />
         <div
           ref={scrollRef}
-          className='flex flex-1 flex-col gap-6 overflow-y-auto px-20 py-12'
+          className='flex flex-1 flex-col gap-6 overflow-y-auto px-6 py-8 md:px-20 md:py-12'
         >
           {isStep1 && <StepType form={form} />}
           {isStep2 && search.type && (
@@ -109,6 +160,17 @@ function NovoEventoComponent() {
               scrollRootRef={scrollRef}
             />
           )}
+          {isStep3 && (
+            <StepFormat
+              format={search.format}
+              rows={search.rows}
+              seatsPerRow={search.seatsPerRow}
+              sectors={search.sectors}
+              onFormatChange={onFormatChange}
+              onSeatedConfigChange={onSeatedConfigChange}
+              onSectorsChange={onSectorsChange}
+            />
+          )}
         </div>
         {isStep1 ? (
           <WizardFooter onBack={onBack} continueDisabled={!selectedType} />
@@ -117,6 +179,13 @@ function NovoEventoComponent() {
             onBack={onBack}
             onContinue={onContinueStep2}
             continueDisabled={!search.externalId}
+            continueType='button'
+          />
+        ) : isStep3 ? (
+          <WizardFooter
+            onBack={onBack}
+            onContinue={onContinueStep3}
+            continueDisabled={!isStep3Valid}
             continueType='button'
           />
         ) : (

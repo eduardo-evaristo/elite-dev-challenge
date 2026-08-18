@@ -7,7 +7,7 @@ interface WizardProgressProps {
 
 export function WizardProgress({ step }: WizardProgressProps) {
   return (
-    <div className='flex items-center justify-between border-b border-line bg-surface px-20 py-4'>
+    <div className='flex items-center justify-between border-b border-line bg-surface px-6 py-4 md:px-20'>
       <span className='text-sm font-semibold text-ink'>
         Passo {step} de {TOTAL_STEPS}
       </span>

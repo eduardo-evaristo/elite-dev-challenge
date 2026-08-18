@@ -7,6 +7,10 @@ export const eventCreateSearchSchema = z.object({
   type: z.enum(['movie', 'show']).optional(),
   query: z.string().optional(),
   externalId: z.string().optional(),
+  format: z.enum(['seated', 'standing']).optional(),
+  rows: z.number().min(1).max(50).optional(),
+  seatsPerRow: z.number().min(1).max(30).optional(),
+  sectors: z.string().optional(),
 });
 
 export type EventCreateSearch = z.infer<typeof eventCreateSearchSchema>;

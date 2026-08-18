@@ -83,7 +83,7 @@ export function StepCatalog({
       </div>
 
       {isLoading ? (
-        <div className='grid grid-cols-4 gap-5'>
+        <div className='grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4'>
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
@@ -101,7 +101,7 @@ export function StepCatalog({
           </p>
         </div>
       ) : (
-        <div className='grid grid-cols-4 gap-5'>
+        <div className='grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4'>
           {items.map((item) => (
             <CatalogCard
               key={`${item.externalSource}-${item.externalId}`}

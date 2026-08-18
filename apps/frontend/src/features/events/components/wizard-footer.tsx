@@ -18,7 +18,7 @@ export function WizardFooter({
   continueType = 'submit',
 }: WizardFooterProps) {
   return (
-    <div className='flex items-center justify-between border-t border-line bg-surface px-20 py-4'>
+    <div className='flex items-center justify-between border-t border-line bg-surface px-6 py-4 md:px-20'>
       <button
         type='button'
         onClick={onBack}

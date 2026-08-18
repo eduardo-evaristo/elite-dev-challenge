@@ -34,7 +34,7 @@ export function StepType({ form }: StepTypeProps) {
       <p className='text-sm text-muted-foreground'>
         Essa escolha define onde vamos buscar os detalhes do evento.
       </p>
-      <div className='flex gap-5'>
+      <div className='flex flex-col gap-5 md:flex-row'>
         {options.map((opt) => {
           const isSelected = selectedType === opt.value;
           const { Icon } = opt;
