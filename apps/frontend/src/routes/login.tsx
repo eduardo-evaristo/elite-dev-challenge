@@ -1,15 +1,22 @@
 import { useState, type FormEvent } from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { z } from 'zod';
 
 import { useLogin } from '@/features/auth/hooks/use-login';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
+const loginSearchSchema = z.object({
+  redirect: z.string().optional(),
+});
+
 export const Route = createFileRoute('/login')({
+  validateSearch: loginSearchSchema,
   component: RouteComponent,
 });
 
 function RouteComponent() {
+  const { redirect } = Route.useSearch();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,7 +30,13 @@ function RouteComponent() {
     login.mutate(
       { email, password },
       {
-        onSuccess: () => navigate({ to: '/' }),
+        onSuccess: () => {
+          if (redirect) {
+            window.location.href = redirect;
+          } else {
+            navigate({ to: '/' });
+          }
+        },
         onError: (error) => {
           setErrorMsg('Credenciais inválidas');
           console.error(error);

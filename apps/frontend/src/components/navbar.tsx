@@ -75,14 +75,16 @@ export function Navbar() {
         )}
 
         {role === 'ORGANIZER' && (
-          <button
+          <Link
+            to='/organizador/eventos/novo'
+            search={{ step: 1 }}
             className={cn(
               'rounded-md bg-curtain px-4 py-2 text-sm font-semibold text-white',
               'transition-colors hover:bg-curtain-hover',
             )}
           >
             Criar evento
-          </button>
+          </Link>
         )}
 
         <DropdownMenu>
