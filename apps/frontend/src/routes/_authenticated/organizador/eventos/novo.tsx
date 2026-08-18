@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,6 +13,7 @@ import {
 import { WizardProgress } from '@/features/events/components/wizard-progress';
 import { WizardFooter } from '@/features/events/components/wizard-footer';
 import { StepType } from '@/features/events/components/step-type';
+import { StepCatalog } from '@/features/events/components/step-catalog';
 
 export const Route = createFileRoute(
   '/_authenticated/organizador/eventos/novo',
@@ -41,11 +42,17 @@ function NovoEventoComponent() {
     form.reset({ type: search.type });
   }, [search.type, form]);
 
-  const onContinue = form.handleSubmit((data) => {
+  const onContinueStep1 = form.handleSubmit((data) => {
     navigate({
       search: (prev) => ({ ...prev, step: 2, type: data.type }),
     });
   });
+
+  const onContinueStep2 = () => {
+    navigate({
+      search: (prev) => ({ ...prev, step: 3 }),
+    });
+  };
 
   const onBack = () => {
     if (search.step <= 1) {
@@ -57,17 +64,64 @@ function NovoEventoComponent() {
     }
   };
 
+  const onQueryChange = (query: string) => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        query: query || undefined,
+        externalId: undefined,
+      }),
+    });
+  };
+
+  const onSelect = (externalId: string) => {
+    navigate({
+      search: (prev) => ({ ...prev, externalId }),
+    });
+  };
+
   const selectedType = useWatch({ control: form.control, name: 'type' });
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const isStep1 = search.step === 1;
+  const isStep2 = search.step === 2;
 
   return (
-    <div className='flex min-h-screen flex-col bg-paper'>
+    <div className='flex h-screen flex-col overflow-hidden bg-paper'>
       <Navbar />
-      <form onSubmit={onContinue} className='flex flex-1 flex-col'>
+      <form
+        onSubmit={isStep1 ? onContinueStep1 : undefined}
+        className='flex flex-1 flex-col overflow-hidden'
+      >
         <WizardProgress step={search.step} />
-        <div className='flex flex-1 flex-col gap-6 px-20 py-12'>
-          {search.step === 1 && <StepType form={form} />}
+        <div
+          ref={scrollRef}
+          className='flex flex-1 flex-col gap-6 overflow-y-auto px-20 py-12'
+        >
+          {isStep1 && <StepType form={form} />}
+          {isStep2 && search.type && (
+            <StepCatalog
+              type={search.type}
+              query={search.query}
+              externalId={search.externalId}
+              onQueryChange={onQueryChange}
+              onSelect={onSelect}
+              scrollRootRef={scrollRef}
+            />
+          )}
         </div>
-        <WizardFooter onBack={onBack} continueDisabled={!selectedType} />
+        {isStep1 ? (
+          <WizardFooter onBack={onBack} continueDisabled={!selectedType} />
+        ) : isStep2 ? (
+          <WizardFooter
+            onBack={onBack}
+            onContinue={onContinueStep2}
+            continueDisabled={!search.externalId}
+            continueType='button'
+          />
+        ) : (
+          <WizardFooter onBack={onBack} continueDisabled />
+        )}
       </form>
     </div>
   );

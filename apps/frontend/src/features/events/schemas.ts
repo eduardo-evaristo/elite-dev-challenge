@@ -5,6 +5,8 @@ export const TOTAL_STEPS = 5;
 export const eventCreateSearchSchema = z.object({
   step: z.number().min(1).max(TOTAL_STEPS).default(1).catch(1),
   type: z.enum(['movie', 'show']).optional(),
+  query: z.string().optional(),
+  externalId: z.string().optional(),
 });
 
 export type EventCreateSearch = z.infer<typeof eventCreateSearchSchema>;
