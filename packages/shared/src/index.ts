@@ -21,6 +21,7 @@ export interface CatalogItemDetail extends CatalogItem {
   tagline?: string;
   city?: string;
   priceRange?: { min: number; max: number; currency: string };
+  certification?: string;
 }
 
 export interface SearchParams {
@@ -35,6 +36,99 @@ export interface CatalogSearchParams extends SearchParams {
 
 export interface PaginatedCatalogResult {
   items: CatalogItem[];
+  page: number;
+  totalPages: number;
+  totalResults: number;
+}
+
+export type EventType = 'MOVIE' | 'SHOW';
+export type EventStatus = 'DRAFT' | 'PUBLISHED' | 'CANCELLED';
+export type SeatStatus = 'AVAILABLE' | 'RESERVED' | 'SOLD';
+
+export interface SeatRequest {
+  row: string;
+  number: number;
+}
+
+export interface TicketTypeRequest {
+  name: string;
+  price: number;
+  capacity: number;
+}
+
+export interface CreateEventRequest {
+  name: string;
+  date: string;
+  location: string;
+  type: EventType;
+  externalId: string;
+  externalSource: ExternalSource;
+  imageUrl?: string;
+  eventClassification: string;
+  description?: string;
+  duration: number;
+  seats?: SeatRequest[];
+  ticketTypes?: TicketTypeRequest[];
+}
+
+export interface UpdateEventRequest {
+  name?: string;
+  date?: string;
+  location?: string;
+  status?: EventStatus;
+  imageUrl?: string;
+  eventClassification?: string;
+  description?: string;
+  duration?: number;
+}
+
+export interface QueryEventsParams {
+  page?: number;
+  size?: number;
+  query?: string;
+  type?: EventType;
+}
+
+export interface SeatResponse {
+  id: string;
+  row: string;
+  number: number;
+  status: SeatStatus;
+}
+
+export interface TicketTypeResponse {
+  id: string;
+  name: string;
+  price: number;
+  capacity: number;
+  availableCount: number;
+}
+
+export interface EventItem {
+  id: string;
+  name: string;
+  date: string;
+  location: string;
+  type: EventType;
+  status: EventStatus;
+  externalId: string;
+  externalSource: ExternalSource;
+  imageUrl: string | null;
+  eventClassification: string;
+  description: string | null;
+  duration: number;
+  organizerId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EventDetailResponse extends EventItem {
+  seats: SeatResponse[];
+  ticketTypes: TicketTypeResponse[];
+}
+
+export interface PaginatedEventResult {
+  items: EventItem[];
   page: number;
   totalPages: number;
   totalResults: number;

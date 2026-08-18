@@ -82,6 +82,12 @@ model Event {
   externalId     String
   externalSource ExternalSource
 
+  // dados denormalizados do catálogo (evita re-fetch das APIs externas)
+  imageUrl            String?
+  eventClassification String
+  description         String?
+  duration            Int
+
   organizerId String
   organizer   User   @relation("OrganizerEvents", fields: [organizerId], references: [id])
 

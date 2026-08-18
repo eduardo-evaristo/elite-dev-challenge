@@ -25,10 +25,26 @@ interface TmdbMovie {
   vote_average: number;
 }
 
+interface TmdbReleaseDate {
+  certification: string;
+  iso_639_1?: string;
+  note?: string;
+  release_date?: string;
+  type?: number;
+}
+
+interface TmdbReleaseDatesResponse {
+  results: {
+    iso_3166_1: string;
+    release_dates: TmdbReleaseDate[];
+  }[];
+}
+
 interface TmdbMovieDetail extends TmdbMovie {
   runtime?: number | null;
   genres?: { id: number; name: string }[];
   tagline?: string;
+  release_dates?: TmdbReleaseDatesResponse;
 }
 
 interface TmdbMovieListResponse {
@@ -83,6 +99,7 @@ export class TmdbProvider implements CatalogProvider {
   async findOne(externalId: string): Promise<CatalogItemDetail> {
     const data = await this.get<TmdbMovieDetail>(`/movie/${externalId}`, {
       language: 'pt-BR',
+      append_to_response: 'release_dates',
     });
     return this.toCatalogItemDetail(data);
   }
@@ -129,11 +146,18 @@ export class TmdbProvider implements CatalogProvider {
   }
 
   private toCatalogItemDetail(m: TmdbMovieDetail): CatalogItemDetail {
+    const brRelease = m.release_dates?.results?.find(
+      (r) => r.iso_3166_1 === 'BR',
+    );
+    const certification =
+      brRelease?.release_dates?.[0]?.certification || undefined;
+
     return {
       ...this.toCatalogItem(m),
       runtime: m.runtime ?? undefined,
       genres: m.genres?.map((g) => g.name),
       tagline: m.tagline || undefined,
+      certification,
     };
   }
 }
