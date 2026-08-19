@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import type { HeroSlide } from '@/data/mock-home';
+import type { HeroSlide } from '@/features/home/types';
 import { cn } from '@/lib/utils';
 
 interface HeroProps {

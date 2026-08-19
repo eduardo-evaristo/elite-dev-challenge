@@ -2,12 +2,13 @@ import { useRef } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 
 import { Navbar } from '@/components/navbar';
-import { Hero } from '@/components/hero';
-import { Footer } from '@/components/footer';
-import { SectionHeader } from '@/components/section-header';
+import { Hero } from '@/features/home/components/hero';
+import { Footer } from '@/features/home/components/footer';
+import { SectionHeader } from '@/features/home/components/section-header';
 import { MovieCard } from '@/components/movie-card';
 import { EventCard } from '@/components/event-card';
-import { mockMovies, mockEvents, mockSlides } from '@/data/mock-home';
+import { mockMovies, mockEvents } from '@/features/home/mocks';
+import { heroSlides } from '@/features/home/constants';
 
 export const Route = createFileRoute('/')({
   component: RouteComponent,
@@ -38,7 +39,7 @@ function RouteComponent() {
     <div className='min-h-screen bg-paper'>
       <Navbar />
 
-      <Hero slides={mockSlides} />
+      <Hero slides={heroSlides} />
 
       <section className='flex flex-col gap-6 px-20 py-12'>
         <SectionHeader

@@ -12,13 +12,6 @@ export interface MockEvent {
   category: string;
 }
 
-export interface HeroSlide {
-  id: string;
-  title: string;
-  description: string;
-  ctaLabel: string;
-}
-
 export const mockMovies: MockMovie[] = [
   {
     id: 'movie-1',
@@ -34,20 +27,5 @@ export const mockEvents: MockEvent[] = [
     date: 'Sáb, 15 de mar',
     venue: 'Teatro Municipal',
     category: 'Música',
-  },
-];
-
-export const mockSlides: HeroSlide[] = [
-  {
-    id: 'slide-1',
-    title: 'O amor não tira férias',
-    description: 'A comédia romântica que todo mundo está comentando',
-    ctaLabel: 'Comprar ingresso',
-  },
-  {
-    id: 'slide-2',
-    title: 'O amor não tira férias',
-    description: 'A comédia romântica que todo mundo está comentando',
-    ctaLabel: 'Comprar ingresso',
   },
 ];
