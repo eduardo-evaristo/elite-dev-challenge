@@ -7,10 +7,23 @@ import { Footer } from '@/features/home/components/footer';
 import { SectionHeader } from '@/features/home/components/section-header';
 import { MovieCard } from '@/components/movie-card';
 import { EventCard } from '@/components/event-card';
-import { mockMovies, mockEvents } from '@/features/home/mocks';
 import { heroSlides } from '@/features/home/constants';
+import { useInfiniteScroll } from '@/features/home/hooks/use-infinite-scroll';
+import { useEventsList } from '@/features/events/hooks/use-events-list';
+import { eventsInfiniteListOptions } from '@/features/events/queries';
+import { formatDuration, formatEventDate } from '@/lib/datetime';
 
 export const Route = createFileRoute('/')({
+  loader: async ({ context }) => {
+    await Promise.all([
+      context.queryClient.ensureInfiniteQueryData(
+        eventsInfiniteListOptions('movie'),
+      ),
+      context.queryClient.ensureInfiniteQueryData(
+        eventsInfiniteListOptions('show'),
+      ),
+    ]);
+  },
   component: RouteComponent,
 });
 
@@ -20,6 +33,27 @@ const EVENT_SCROLL_AMOUNT = 276;
 function RouteComponent() {
   const moviesRef = useRef<HTMLDivElement>(null);
   const eventsRef = useRef<HTMLDivElement>(null);
+  const moviesSentinelRef = useRef<HTMLDivElement>(null);
+  const eventsSentinelRef = useRef<HTMLDivElement>(null);
+
+  const moviesQuery = useEventsList('movie');
+  const showsQuery = useEventsList('show');
+
+  const movies = moviesQuery.data?.pages.flatMap((p) => p.items) ?? [];
+  const shows = showsQuery.data?.pages.flatMap((p) => p.items) ?? [];
+
+  useInfiniteScroll({
+    rootRef: moviesRef,
+    sentinelRef: moviesSentinelRef,
+    onLoadMore: () => moviesQuery.fetchNextPage(),
+    enabled: moviesQuery.hasNextPage && !moviesQuery.isFetchingNextPage,
+  });
+  useInfiniteScroll({
+    rootRef: eventsRef,
+    sentinelRef: eventsSentinelRef,
+    onLoadMore: () => showsQuery.fetchNextPage(),
+    enabled: showsQuery.hasNextPage && !showsQuery.isFetchingNextPage,
+  });
 
   const scrollMovies = (direction: 1 | -1) => {
     moviesRef.current?.scrollBy({
@@ -51,9 +85,15 @@ function RouteComponent() {
           ref={moviesRef}
           className='flex gap-4 overflow-x-auto scrollbar-none'
         >
-          {mockMovies.map((movie) => (
-            <MovieCard key={movie.id} title={movie.title} meta={movie.meta} />
+          {movies.map((item) => (
+            <MovieCard
+              key={item.id}
+              title={item.name}
+              meta={`${formatDuration(item.duration)} · ${item.eventClassification}`}
+              posterUrl={item.imageUrl}
+            />
           ))}
+          <div ref={moviesSentinelRef} className='h-1 w-1 shrink-0' />
         </div>
       </section>
 
@@ -67,15 +107,17 @@ function RouteComponent() {
           ref={eventsRef}
           className='flex gap-4 overflow-x-auto scrollbar-none'
         >
-          {mockEvents.map((event) => (
+          {shows.map((item) => (
             <EventCard
-              key={event.id}
-              title={event.title}
-              date={event.date}
-              venue={event.venue}
-              category={event.category}
+              key={item.id}
+              title={item.name}
+              date={formatEventDate(item.date)}
+              venue={item.location}
+              category={item.eventClassification}
+              posterUrl={item.imageUrl}
             />
           ))}
+          <div ref={eventsSentinelRef} className='h-1 w-1 shrink-0' />
         </div>
       </section>
 

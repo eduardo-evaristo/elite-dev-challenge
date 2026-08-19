@@ -29,6 +29,20 @@ export function formatDateForDisplay(date: string, time?: string): string {
   }
 }
 
+export function formatEventDate(isoDate: string): string {
+  try {
+    const d = new Date(isoDate);
+    const formatted = d.toLocaleDateString('pt-BR', {
+      weekday: 'short',
+      day: '2-digit',
+      month: 'short',
+    });
+    return formatted.replace(/\./g, '').replace(/^./, (c) => c.toUpperCase());
+  } catch {
+    return isoDate;
+  }
+}
+
 export function getYear(isoDate: string): number {
   return new Date(isoDate).getFullYear();
 }
