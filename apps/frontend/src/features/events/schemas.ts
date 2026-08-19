@@ -11,6 +11,14 @@ export const eventCreateSearchSchema = z.object({
   rows: z.number().min(1).max(50).optional(),
   seatsPerRow: z.number().min(1).max(30).optional(),
   sectors: z.string().optional(),
+  name: z.string().optional(),
+  date: z.string().optional(),
+  time: z.string().optional(),
+  duration: z.number().min(1).optional(),
+  location: z.string().optional(),
+  ticketPrice: z.string().optional(),
+  description: z.string().optional(),
+  classification: z.enum(['L', '6', '10', '12', '14', '16', '18']).optional(),
 });
 
 export type EventCreateSearch = z.infer<typeof eventCreateSearchSchema>;

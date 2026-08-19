@@ -2,8 +2,10 @@ import { useEffect, useRef } from 'react';
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQuery } from '@tanstack/react-query';
 
 import { meQueryOptions } from '@/features/auth/queries';
+import { catalogDetailOptions } from '@/features/catalog/queries';
 import { Navbar } from '@/components/navbar';
 import {
   eventCreateSearchSchema,
@@ -15,6 +17,7 @@ import { WizardFooter } from '@/features/events/components/wizard-footer';
 import { StepType } from '@/features/events/components/step-type';
 import { StepCatalog } from '@/features/events/components/step-catalog';
 import { StepFormat } from '@/features/events/components/step-format';
+import { StepDetails } from '@/features/events/components/step-details';
 
 export const Route = createFileRoute(
   '/_authenticated/organizador/eventos/novo',
@@ -114,12 +117,40 @@ function NovoEventoComponent() {
     });
   };
 
+  const onContinueStep4 = () => {
+    navigate({
+      search: (prev) => ({ ...prev, step: 5 }),
+    });
+  };
+
+  const onFieldChange = (
+    field:
+      | 'name'
+      | 'date'
+      | 'time'
+      | 'duration'
+      | 'location'
+      | 'ticketPrice'
+      | 'description'
+      | 'classification',
+    value: string | number | undefined,
+  ) => {
+    navigate({
+      search: (prev) => ({ ...prev, [field]: value }),
+    });
+  };
+
   const selectedType = useWatch({ control: form.control, name: 'type' });
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const isStep1 = search.step === 1;
   const isStep2 = search.step === 2;
   const isStep3 = search.step === 3;
+  const isStep4 = search.step === 4;
+
+  const detailQuery = useQuery(
+    catalogDetailOptions(search.type ?? 'movie', search.externalId ?? ''),
+  );
 
   const isStep3Valid = (() => {
     if (!search.format) return false;
@@ -135,6 +166,14 @@ function NovoEventoComponent() {
     } catch {
       return false;
     }
+  })();
+
+  const isStep4Valid = (() => {
+    if (!search.date || !search.time || !search.location) return false;
+    if (!search.classification) return false;
+    if (search.type === 'show' && !search.name?.trim()) return false;
+    if (search.format === 'seated' && !search.ticketPrice?.trim()) return false;
+    return true;
   })();
 
   return (
@@ -171,6 +210,22 @@ function NovoEventoComponent() {
               onSectorsChange={onSectorsChange}
             />
           )}
+          {isStep4 && search.type && (
+            <StepDetails
+              type={search.type}
+              format={search.format}
+              detail={detailQuery.data}
+              name={search.name}
+              date={search.date}
+              time={search.time}
+              duration={search.duration}
+              location={search.location}
+              ticketPrice={search.ticketPrice}
+              description={search.description}
+              classification={search.classification}
+              onFieldChange={onFieldChange}
+            />
+          )}
         </div>
         {isStep1 ? (
           <WizardFooter onBack={onBack} continueDisabled={!selectedType} />
@@ -186,6 +241,13 @@ function NovoEventoComponent() {
             onBack={onBack}
             onContinue={onContinueStep3}
             continueDisabled={!isStep3Valid}
+            continueType='button'
+          />
+        ) : isStep4 ? (
+          <WizardFooter
+            onBack={onBack}
+            onContinue={onContinueStep4}
+            continueDisabled={!isStep4Valid}
             continueType='button'
           />
         ) : (
