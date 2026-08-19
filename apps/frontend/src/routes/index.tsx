@@ -10,15 +10,17 @@ import { EventCard } from '@/components/event-card';
 import { heroSlides } from '@/features/home/constants';
 import { useInfiniteScroll } from '@/features/home/hooks/use-infinite-scroll';
 import { useEventsList } from '@/features/events/hooks/use-events-list';
-import { eventsInfiniteListOptions } from '@/features/events/queries';
+import { useMoviesList } from '@/features/events/hooks/use-movies-list';
+import {
+  eventsInfiniteListOptions,
+  moviesInfiniteListOptions,
+} from '@/features/events/queries';
 import { formatDuration, formatEventDate } from '@/lib/datetime';
 
 export const Route = createFileRoute('/')({
   loader: async ({ context }) => {
     await Promise.all([
-      context.queryClient.ensureInfiniteQueryData(
-        eventsInfiniteListOptions('movie'),
-      ),
+      context.queryClient.ensureInfiniteQueryData(moviesInfiniteListOptions()),
       context.queryClient.ensureInfiniteQueryData(
         eventsInfiniteListOptions('show'),
       ),
@@ -36,7 +38,7 @@ function RouteComponent() {
   const moviesSentinelRef = useRef<HTMLDivElement>(null);
   const eventsSentinelRef = useRef<HTMLDivElement>(null);
 
-  const moviesQuery = useEventsList('movie');
+  const moviesQuery = useMoviesList();
   const showsQuery = useEventsList('show');
 
   const movies = moviesQuery.data?.pages.flatMap((p) => p.items) ?? [];
@@ -87,7 +89,7 @@ function RouteComponent() {
         >
           {movies.map((item) => (
             <MovieCard
-              key={item.id}
+              key={item.externalId}
               title={item.name}
               meta={formatDuration(item.duration)}
               classification={item.eventClassification}

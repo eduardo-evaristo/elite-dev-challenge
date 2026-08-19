@@ -2,6 +2,7 @@ import type {
   CreateEventRequest,
   EventDetailResponse,
   PaginatedEventResult,
+  PaginatedMovieListResult,
 } from '@elite-dev/shared';
 
 import { httpClient } from '@/lib/http-client';
@@ -30,5 +31,21 @@ export async function listEvents(params: {
       query: params.query,
     },
   });
+  return data;
+}
+
+export async function listMovies(params: {
+  page?: number;
+  size?: number;
+}): Promise<PaginatedMovieListResult> {
+  const { data } = await httpClient.get<PaginatedMovieListResult>(
+    '/events/movies',
+    {
+      params: {
+        page: params.page ?? 1,
+        size: params.size ?? 20,
+      },
+    },
+  );
   return data;
 }
