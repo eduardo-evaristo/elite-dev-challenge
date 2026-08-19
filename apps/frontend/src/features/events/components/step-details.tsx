@@ -10,6 +10,7 @@ import icon16 from '@/assets/16.webp';
 import icon18 from '@/assets/18.webp';
 
 import { cn } from '@/lib/utils';
+import { formatDuration } from '@/lib/datetime';
 
 type Classification = 'L' | '6' | '10' | '12' | '14' | '16' | '18';
 
@@ -59,15 +60,6 @@ function normalizeClassification(
   return VALID_CLASSIFICATIONS.includes(cleaned)
     ? (cleaned as Classification)
     : undefined;
-}
-
-function formatDuration(minutes: number | undefined): string {
-  if (!minutes || minutes <= 0) return '';
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  if (h === 0) return `${m}min`;
-  if (m === 0) return `${h}h`;
-  return `${h}h ${m}min`;
 }
 
 const inputClass =

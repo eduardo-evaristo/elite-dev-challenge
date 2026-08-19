@@ -59,4 +59,8 @@ export class CreateEventDto {
   @ValidateNested({ each: true })
   @Type(() => TicketTypeDto)
   ticketTypes?: TicketTypeDto[];
+
+  @IsOptional()
+  @IsIn(['draft', 'published'])
+  status?: 'draft' | 'published';
 }

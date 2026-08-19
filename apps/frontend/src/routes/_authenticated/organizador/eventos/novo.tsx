@@ -1,8 +1,14 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
+import type {
+  CreateEventRequest,
+  SeatRequest,
+  TicketTypeRequest,
+} from '@elite-dev/shared';
 
 import { meQueryOptions } from '@/features/auth/queries';
 import { catalogDetailOptions } from '@/features/catalog/queries';
@@ -18,6 +24,9 @@ import { StepType } from '@/features/events/components/step-type';
 import { StepCatalog } from '@/features/events/components/step-catalog';
 import { StepFormat } from '@/features/events/components/step-format';
 import { StepDetails } from '@/features/events/components/step-details';
+import { StepReview } from '@/features/events/components/step-review';
+import { useCreateEvent } from '@/features/events/hooks/use-create-event';
+import { combineDateAndTime } from '@/lib/datetime';
 
 export const Route = createFileRoute(
   '/_authenticated/organizador/eventos/novo',
@@ -176,6 +185,131 @@ function NovoEventoComponent() {
     return true;
   })();
 
+  const isStep5 = search.step === 5;
+
+  const createEventMutation = useCreateEvent();
+  const [, setSubmitError] = useState<string | null>(null);
+
+  const buildPayload = (
+    status: 'draft' | 'published' | undefined,
+  ): CreateEventRequest | null => {
+    if (!search.type || !search.classification || !search.duration) {
+      return null;
+    }
+    const detail = detailQuery.data;
+    const isMovie = search.type === 'movie';
+    const isSeated = search.format === 'seated';
+    const eventName = isMovie ? detail?.title : search.name;
+    if (!eventName) return null;
+    if (!search.date || !search.time || !search.location) return null;
+
+    const dateISO = combineDateAndTime(search.date, search.time);
+
+    const externalSource = isMovie ? 'TMDB' : 'TICKETMASTER';
+    const imageUrl = detail?.posterUrl ?? undefined;
+
+    let seats: SeatRequest[] | undefined;
+    let ticketTypes: TicketTypeRequest[] | undefined;
+
+    if (isSeated && search.rows && search.seatsPerRow) {
+      const seatList: SeatRequest[] = [];
+      for (let r = 0; r < search.rows; r++) {
+        const rowLetter = String.fromCharCode(65 + r);
+        for (let n = 1; n <= search.seatsPerRow; n++) {
+          seatList.push({ row: rowLetter, number: n });
+        }
+      }
+      seats = seatList;
+
+      const parsedPrice = search.ticketPrice
+        ? parseFloat(
+            search.ticketPrice.replace(/[^\d,]/g, '').replace(',', '.'),
+          )
+        : 0;
+      ticketTypes = [
+        {
+          name: 'Geral',
+          price: parsedPrice,
+          capacity: search.rows * search.seatsPerRow,
+        },
+      ];
+    } else if (!isSeated && search.sectors) {
+      try {
+        const parsed = JSON.parse(search.sectors);
+        if (Array.isArray(parsed)) {
+          ticketTypes = parsed.map(
+            (s: { name: string; price: string; capacity: string }) => ({
+              name: s.name,
+              price:
+                parseFloat(s.price.replace(/[^\d,]/g, '').replace(',', '.')) ||
+                0,
+              capacity: parseInt(s.capacity, 10) || 0,
+            }),
+          );
+        }
+      } catch {
+        return null;
+      }
+    }
+
+    const payload: CreateEventRequest = {
+      name: eventName,
+      date: dateISO,
+      location: search.location,
+      type: search.type,
+      externalId: search.externalId ?? '',
+      externalSource,
+      imageUrl,
+      eventClassification: search.classification,
+      description: search.description,
+      duration: search.duration,
+      seats,
+      ticketTypes,
+    };
+
+    if (status) {
+      payload.status = status;
+    }
+
+    return payload;
+  };
+
+  const onSubmitSuccess = () => {
+    navigate({ to: '/' });
+  };
+
+  const onPublish = () => {
+    setSubmitError(null);
+    const payload = buildPayload(undefined);
+    if (!payload) return;
+    createEventMutation.mutate(payload, {
+      onSuccess: onSubmitSuccess,
+      onError: (error) => {
+        const message = isAxiosError(error)
+          ? (error.response?.data as { message?: string })?.message
+          : undefined;
+        setSubmitError(message ?? 'Erro ao publicar evento. Tente novamente.');
+      },
+    });
+  };
+
+  const onSaveDraft = () => {
+    setSubmitError(null);
+    const payload = buildPayload('draft');
+    if (!payload) return;
+    createEventMutation.mutate(payload, {
+      onSuccess: onSubmitSuccess,
+      onError: (error) => {
+        const message = isAxiosError(error)
+          ? (error.response?.data as { message?: string })?.message
+          : undefined;
+        setSubmitError(message ?? 'Erro ao salvar rascunho. Tente novamente.');
+      },
+    });
+  };
+
+  const isSubmitting = createEventMutation.isPending;
+
   return (
     <div className='flex h-screen flex-col overflow-hidden bg-paper'>
       <Navbar />
@@ -226,6 +360,24 @@ function NovoEventoComponent() {
               onFieldChange={onFieldChange}
             />
           )}
+          {isStep5 && search.type && (
+            <StepReview
+              type={search.type}
+              format={search.format}
+              detail={detailQuery.data}
+              name={search.name}
+              date={search.date}
+              time={search.time}
+              duration={search.duration}
+              location={search.location}
+              ticketPrice={search.ticketPrice}
+              description={search.description}
+              classification={search.classification}
+              rows={search.rows}
+              seatsPerRow={search.seatsPerRow}
+              sectors={search.sectors}
+            />
+          )}
         </div>
         {isStep1 ? (
           <WizardFooter onBack={onBack} continueDisabled={!selectedType} />
@@ -249,6 +401,17 @@ function NovoEventoComponent() {
             onContinue={onContinueStep4}
             continueDisabled={!isStep4Valid}
             continueType='button'
+          />
+        ) : isStep5 ? (
+          <WizardFooter
+            onBack={onBack}
+            onContinue={onPublish}
+            continueLabel='Publicar'
+            continueType='button'
+            onSecondaryAction={onSaveDraft}
+            secondaryLabel='Salvar como rascunho'
+            primaryLoading={isSubmitting}
+            secondaryLoading={isSubmitting}
           />
         ) : (
           <WizardFooter onBack={onBack} continueDisabled />

@@ -7,6 +7,7 @@ import { useCatalogSearch } from '@/features/catalog/hooks/use-catalog-search';
 import { MovieCard } from '@/components/movie-card';
 import { EventCard } from '@/components/event-card';
 import { cn } from '@/lib/utils';
+import { getYear } from '@/lib/datetime';
 
 interface StepCatalogProps {
   type: CatalogType;
@@ -136,10 +137,10 @@ function CatalogCard({
   if (item.type === 'movie') {
     const meta = item.rating
       ? `${'\u2605'} ${item.rating.toFixed(1)}${
-          item.date ? ` \u00b7 ${new Date(item.date).getFullYear()}` : ''
+          item.date ? ` \u00b7 ${getYear(item.date)}` : ''
         }`
       : item.date
-        ? new Date(item.date).getFullYear().toString()
+        ? getYear(item.date).toString()
         : undefined;
 
     return (

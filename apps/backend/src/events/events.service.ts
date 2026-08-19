@@ -129,7 +129,7 @@ export class EventsService {
       date: dto.date,
       location: dto.location,
       type: eventType,
-      status: 'PUBLISHED' as const,
+      status: dto.status ? STATUS_MAP[dto.status] : ('PUBLISHED' as const),
       externalId: dto.externalId,
       externalSource: dto.externalSource,
       imageUrl: dto.imageUrl,

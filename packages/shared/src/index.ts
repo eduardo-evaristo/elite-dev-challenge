@@ -60,7 +60,7 @@ export interface CreateEventRequest {
   name: string;
   date: string;
   location: string;
-  type: EventType;
+  type: 'movie' | 'show';
   externalId: string;
   externalSource: ExternalSource;
   imageUrl?: string;
@@ -69,6 +69,7 @@ export interface CreateEventRequest {
   duration: number;
   seats?: SeatRequest[];
   ticketTypes?: TicketTypeRequest[];
+  status?: 'draft' | 'published';
 }
 
 export interface UpdateEventRequest {
