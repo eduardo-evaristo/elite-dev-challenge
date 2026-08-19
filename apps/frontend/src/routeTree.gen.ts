@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as EventosIdRouteImport } from './routes/eventos/$id'
+import { Route as FilmesExternalIdRouteImport } from './routes/filmes/$externalId'
 import { Route as AuthenticatedOrganizadorEventosNovoRouteImport } from './routes/_authenticated/organizador/eventos/novo'
 
 const IndexRoute = IndexRouteImport.update({
@@ -34,6 +36,16 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EventosIdRoute = EventosIdRouteImport.update({
+  id: '/eventos/$id',
+  path: '/eventos/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FilmesExternalIdRoute = FilmesExternalIdRouteImport.update({
+  id: '/filmes/$externalId',
+  path: '/filmes/$externalId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedOrganizadorEventosNovoRoute =
   AuthenticatedOrganizadorEventosNovoRouteImport.update({
     id: '/organizador/eventos/novo',
@@ -45,12 +57,16 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/eventos/$id': typeof EventosIdRoute
+  '/filmes/$externalId': typeof FilmesExternalIdRoute
   '/organizador/eventos/novo': typeof AuthenticatedOrganizadorEventosNovoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/eventos/$id': typeof EventosIdRoute
+  '/filmes/$externalId': typeof FilmesExternalIdRoute
   '/organizador/eventos/novo': typeof AuthenticatedOrganizadorEventosNovoRoute
 }
 export interface FileRoutesById {
@@ -59,19 +75,35 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/eventos/$id': typeof EventosIdRoute
+  '/filmes/$externalId': typeof FilmesExternalIdRoute
   '/_authenticated/organizador/eventos/novo': typeof AuthenticatedOrganizadorEventosNovoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/register' | '/organizador/eventos/novo'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/eventos/$id'
+    | '/filmes/$externalId'
+    | '/organizador/eventos/novo'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/register' | '/organizador/eventos/novo'
+  to:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/eventos/$id'
+    | '/filmes/$externalId'
+    | '/organizador/eventos/novo'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/login'
     | '/register'
+    | '/eventos/$id'
+    | '/filmes/$externalId'
     | '/_authenticated/organizador/eventos/novo'
   fileRoutesById: FileRoutesById
 }
@@ -80,6 +112,8 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  EventosIdRoute: typeof EventosIdRoute
+  FilmesExternalIdRoute: typeof FilmesExternalIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -112,6 +146,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/eventos/$id': {
+      id: '/eventos/$id'
+      path: '/eventos/$id'
+      fullPath: '/eventos/$id'
+      preLoaderRoute: typeof EventosIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/filmes/$externalId': {
+      id: '/filmes/$externalId'
+      path: '/filmes/$externalId'
+      fullPath: '/filmes/$externalId'
+      preLoaderRoute: typeof FilmesExternalIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/organizador/eventos/novo': {
       id: '/_authenticated/organizador/eventos/novo'
       path: '/organizador/eventos/novo'
@@ -140,6 +188,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  EventosIdRoute: EventosIdRoute,
+  FilmesExternalIdRoute: FilmesExternalIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

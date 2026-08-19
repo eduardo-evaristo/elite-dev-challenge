@@ -1,5 +1,9 @@
 import { useRef } from 'react';
-import { createFileRoute } from '@tanstack/react-router';
+import {
+  createFileRoute,
+  useNavigate,
+  useRouter,
+} from '@tanstack/react-router';
 
 import { Navbar } from '@/components/navbar';
 import { Hero } from '@/features/home/components/hero';
@@ -33,6 +37,8 @@ const MOVIE_SCROLL_AMOUNT = 216;
 const EVENT_SCROLL_AMOUNT = 276;
 
 function RouteComponent() {
+  const router = useRouter();
+  const navigate = useNavigate();
   const moviesRef = useRef<HTMLDivElement>(null);
   const eventsRef = useRef<HTMLDivElement>(null);
   const moviesSentinelRef = useRef<HTMLDivElement>(null);
@@ -43,6 +49,19 @@ function RouteComponent() {
 
   const movies = moviesQuery.data?.pages.flatMap((p) => p.items) ?? [];
   const shows = showsQuery.data?.pages.flatMap((p) => p.items) ?? [];
+
+  const preloadMovie = (externalId: string) =>
+    router.preloadRoute({
+      to: '/filmes/$externalId',
+      params: { externalId },
+    });
+  const goMovie = (externalId: string) =>
+    navigate({ to: '/filmes/$externalId', params: { externalId } });
+
+  const preloadEvent = (id: string) =>
+    router.preloadRoute({ to: '/eventos/$id', params: { id } });
+  const goEvent = (id: string) =>
+    navigate({ to: '/eventos/$id', params: { id } });
 
   useInfiniteScroll({
     rootRef: moviesRef,
@@ -88,13 +107,19 @@ function RouteComponent() {
           className='flex gap-4 overflow-x-auto scrollbar-none'
         >
           {movies.map((item) => (
-            <MovieCard
+            <div
               key={item.externalId}
-              title={item.name}
-              meta={formatDuration(item.duration)}
-              classification={item.eventClassification}
-              posterUrl={item.imageUrl}
-            />
+              onMouseEnter={() => preloadMovie(item.externalId)}
+              onFocus={() => preloadMovie(item.externalId)}
+            >
+              <MovieCard
+                title={item.name}
+                meta={formatDuration(item.duration)}
+                classification={item.eventClassification}
+                posterUrl={item.imageUrl}
+                onClick={() => goMovie(item.externalId)}
+              />
+            </div>
           ))}
           <div ref={moviesSentinelRef} className='h-1 w-1 shrink-0' />
         </div>
@@ -111,14 +136,20 @@ function RouteComponent() {
           className='flex gap-4 overflow-x-auto scrollbar-none'
         >
           {shows.map((item) => (
-            <EventCard
+            <div
               key={item.id}
-              title={item.name}
-              date={formatEventDate(item.date)}
-              venue={item.location}
-              classification={item.eventClassification}
-              posterUrl={item.imageUrl}
-            />
+              onMouseEnter={() => preloadEvent(item.id)}
+              onFocus={() => preloadEvent(item.id)}
+            >
+              <EventCard
+                title={item.name}
+                date={formatEventDate(item.date)}
+                venue={item.location}
+                classification={item.eventClassification}
+                posterUrl={item.imageUrl}
+                onClick={() => goEvent(item.id)}
+              />
+            </div>
           ))}
           <div ref={eventsSentinelRef} className='h-1 w-1 shrink-0' />
         </div>

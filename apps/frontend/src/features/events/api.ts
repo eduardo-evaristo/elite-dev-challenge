@@ -1,6 +1,7 @@
 import type {
   CreateEventRequest,
   EventDetailResponse,
+  MovieAggregatedDetail,
   PaginatedEventResult,
   PaginatedMovieListResult,
 } from '@elite-dev/shared';
@@ -46,6 +47,20 @@ export async function listMovies(params: {
         size: params.size ?? 20,
       },
     },
+  );
+  return data;
+}
+
+export async function getEventDetail(id: string): Promise<EventDetailResponse> {
+  const { data } = await httpClient.get<EventDetailResponse>(`/events/${id}`);
+  return data;
+}
+
+export async function getMovieSessions(
+  externalId: string,
+): Promise<MovieAggregatedDetail> {
+  const { data } = await httpClient.get<MovieAggregatedDetail>(
+    `/events/movies/${externalId}/sessions`,
   );
   return data;
 }

@@ -1,7 +1,12 @@
-import { infiniteQueryOptions } from '@tanstack/react-query';
+import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query';
 import type { CatalogType } from '@elite-dev/shared';
 
-import { listEvents, listMovies } from './api';
+import {
+  getEventDetail,
+  getMovieSessions,
+  listEvents,
+  listMovies,
+} from './api';
 
 const PAGE_SIZE = 20;
 
@@ -24,5 +29,21 @@ export function moviesInfiniteListOptions() {
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
+  });
+}
+
+export function eventDetailOptions(id: string) {
+  return queryOptions({
+    queryKey: ['events', 'detail', id],
+    queryFn: () => getEventDetail(id),
+    enabled: !!id,
+  });
+}
+
+export function movieSessionsOptions(externalId: string) {
+  return queryOptions({
+    queryKey: ['movies', 'sessions', externalId],
+    queryFn: () => getMovieSessions(externalId),
+    enabled: !!externalId,
   });
 }
