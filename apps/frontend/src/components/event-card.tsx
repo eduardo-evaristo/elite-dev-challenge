@@ -1,10 +1,14 @@
 import { cn } from '@/lib/utils';
+import {
+  CLASSIFICATION_ICONS,
+  normalizeClassification,
+} from '@/lib/classification';
 
 interface EventCardProps {
   title: string;
   date?: string;
   venue: string;
-  category: string;
+  classification?: string;
   posterUrl?: string | null;
   selected?: boolean;
   onClick?: () => void;
@@ -15,12 +19,14 @@ export function EventCard({
   title,
   date,
   venue,
-  category,
+  classification,
   posterUrl,
   selected = false,
   onClick,
   className,
 }: EventCardProps) {
+  const normalized = normalizeClassification(classification);
+
   return (
     <button
       type='button'
@@ -35,9 +41,6 @@ export function EventCard({
             className='h-full w-full rounded-md object-cover'
           />
         )}
-        <span className='absolute left-2 top-2 rounded-sm bg-curtain px-2 py-1 text-[11px] font-semibold text-white'>
-          {category}
-        </span>
       </div>
       <h3
         className={cn(
@@ -47,7 +50,18 @@ export function EventCard({
       >
         {title}
       </h3>
-      {date && <p className='text-xs text-muted-foreground'>{date}</p>}
+      {(normalized || date) && (
+        <div className='flex items-center gap-2'>
+          {normalized && (
+            <img
+              src={CLASSIFICATION_ICONS[normalized]}
+              alt={normalized}
+              className='size-5 shrink-0 rounded-[3px]'
+            />
+          )}
+          {date && <p className='text-xs text-muted-foreground'>{date}</p>}
+        </div>
+      )}
       <p className='text-xs text-muted-foreground'>{venue}</p>
     </button>
   );

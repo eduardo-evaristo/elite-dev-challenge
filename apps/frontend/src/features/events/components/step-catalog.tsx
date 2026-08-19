@@ -159,7 +159,6 @@ function CatalogCard({
     <EventCard
       title={item.title}
       venue={item.venue ?? '—'}
-      category='Show'
       posterUrl={item.posterUrl}
       selected={selected}
       onClick={() => onSelect(item.externalId)}

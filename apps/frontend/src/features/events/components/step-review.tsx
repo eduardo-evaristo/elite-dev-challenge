@@ -1,15 +1,11 @@
 import type { CatalogItemDetail } from '@elite-dev/shared';
 
-import LIcon from '@/assets/L.webp';
-import icon6 from '@/assets/6.webp';
-import icon10 from '@/assets/10.webp';
-import icon12 from '@/assets/12.webp';
-import icon14 from '@/assets/14.webp';
-import icon16 from '@/assets/16.webp';
-import icon18 from '@/assets/18.webp';
+import {
+  CLASSIFICATION_ICONS,
+  CLASSIFICATION_LABELS,
+  type Classification,
+} from '@/lib/classification';
 import { formatDateForDisplay, formatDuration } from '@/lib/datetime';
-
-type Classification = 'L' | '6' | '10' | '12' | '14' | '16' | '18';
 
 interface StepReviewProps {
   type: 'movie' | 'show';
@@ -27,26 +23,6 @@ interface StepReviewProps {
   seatsPerRow: number | undefined;
   sectors: string | undefined;
 }
-
-const CLASSIFICATION_ICONS: Record<Classification, string> = {
-  L: LIcon,
-  '6': icon6,
-  '10': icon10,
-  '12': icon12,
-  '14': icon14,
-  '16': icon16,
-  '18': icon18,
-};
-
-const CLASSIFICATION_LABELS: Record<Classification, string> = {
-  L: 'Livre',
-  '6': '6 anos',
-  '10': '10 anos',
-  '12': '12 anos',
-  '14': '14 anos',
-  '16': '16 anos',
-  '18': '18 anos',
-};
 
 function parseSectorsCount(sectors: string | undefined): number {
   if (!sectors) return 0;

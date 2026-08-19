@@ -1,8 +1,13 @@
 import { cn } from '@/lib/utils';
+import {
+  CLASSIFICATION_ICONS,
+  normalizeClassification,
+} from '@/lib/classification';
 
 interface MovieCardProps {
   title: string;
   meta?: string;
+  classification?: string;
   posterUrl?: string | null;
   selected?: boolean;
   onClick?: () => void;
@@ -12,11 +17,14 @@ interface MovieCardProps {
 export function MovieCard({
   title,
   meta,
+  classification,
   posterUrl,
   selected = false,
   onClick,
   className,
 }: MovieCardProps) {
+  const normalized = normalizeClassification(classification);
+
   return (
     <button
       type='button'
@@ -40,7 +48,18 @@ export function MovieCard({
       >
         {title}
       </h3>
-      {meta && <p className='text-xs text-muted-foreground'>{meta}</p>}
+      {(normalized || meta) && (
+        <div className='flex items-center gap-1.5'>
+          {normalized && (
+            <img
+              src={CLASSIFICATION_ICONS[normalized]}
+              alt={normalized}
+              className='size-5 shrink-0 rounded-[3px]'
+            />
+          )}
+          {meta && <p className='text-xs text-muted-foreground'>{meta}</p>}
+        </div>
+      )}
     </button>
   );
 }

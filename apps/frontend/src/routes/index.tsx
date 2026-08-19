@@ -89,7 +89,8 @@ function RouteComponent() {
             <MovieCard
               key={item.id}
               title={item.name}
-              meta={`${formatDuration(item.duration)} · ${item.eventClassification}`}
+              meta={formatDuration(item.duration)}
+              classification={item.eventClassification}
               posterUrl={item.imageUrl}
             />
           ))}
@@ -113,7 +114,7 @@ function RouteComponent() {
               title={item.name}
               date={formatEventDate(item.date)}
               venue={item.location}
-              category={item.eventClassification}
+              classification={item.eventClassification}
               posterUrl={item.imageUrl}
             />
           ))}

@@ -1,18 +1,14 @@
 import { useEffect } from 'react';
 import type { CatalogItemDetail } from '@elite-dev/shared';
 
-import LIcon from '@/assets/L.webp';
-import icon6 from '@/assets/6.webp';
-import icon10 from '@/assets/10.webp';
-import icon12 from '@/assets/12.webp';
-import icon14 from '@/assets/14.webp';
-import icon16 from '@/assets/16.webp';
-import icon18 from '@/assets/18.webp';
+import {
+  CLASSIFICATION_RATINGS,
+  normalizeClassification,
+  type Classification,
+} from '@/lib/classification';
 
 import { cn } from '@/lib/utils';
 import { formatDuration } from '@/lib/datetime';
-
-type Classification = 'L' | '6' | '10' | '12' | '14' | '16' | '18';
 
 interface StepDetailsProps {
   type: 'movie' | 'show';
@@ -38,28 +34,6 @@ interface StepDetailsProps {
       | 'classification',
     value: string | number | undefined,
   ) => void;
-}
-
-const RATINGS: { value: Classification; label: string; icon: string }[] = [
-  { value: 'L', label: 'Livre', icon: LIcon },
-  { value: '6', label: '6 anos', icon: icon6 },
-  { value: '10', label: '10 anos', icon: icon10 },
-  { value: '12', label: '12 anos', icon: icon12 },
-  { value: '14', label: '14 anos', icon: icon14 },
-  { value: '16', label: '16 anos', icon: icon16 },
-  { value: '18', label: '18 anos', icon: icon18 },
-];
-
-const VALID_CLASSIFICATIONS = ['L', '6', '10', '12', '14', '16', '18'];
-
-function normalizeClassification(
-  raw: string | undefined,
-): Classification | undefined {
-  if (!raw) return undefined;
-  const cleaned = raw.replace('+', '').trim().toUpperCase();
-  return VALID_CLASSIFICATIONS.includes(cleaned)
-    ? (cleaned as Classification)
-    : undefined;
 }
 
 const inputClass =
@@ -208,7 +182,7 @@ export function StepDetails({
             Classificação
           </span>
           <div className='flex flex-wrap gap-3'>
-            {RATINGS.map((rating) => {
+            {CLASSIFICATION_RATINGS.map((rating) => {
               const isSelected = classification === rating.value;
               return (
                 <button
