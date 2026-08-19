@@ -8,6 +8,7 @@ import { EventsRepository } from './events.repository';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { QueryEventsDto } from './dto/query-events.dto';
+import { QueryMoviesDto } from './dto/query-movies.dto';
 import { AuthenticatedUser } from 'src/auth/auth.types';
 import { Role, EventType, EventStatus } from 'src/generated/prisma/enums';
 
@@ -91,6 +92,119 @@ export class EventsService {
       page,
       totalPages,
       totalResults,
+    };
+  }
+
+  async findMovies(query: QueryMoviesDto) {
+    const groups = await this.groupPublishedMoviesByExternalId();
+
+    const items = Array.from(groups.values()).map((events) =>
+      this.toMovieItem(events),
+    );
+
+    items.sort(
+      (a, b) =>
+        new Date(a.nextSessionDate).getTime() -
+        new Date(b.nextSessionDate).getTime(),
+    );
+
+    const totalResults = items.length;
+    const page = query.page;
+    const size = query.size;
+    const totalPages = Math.ceil(totalResults / size);
+    const start = (page - 1) * size;
+
+    return {
+      items: items.slice(start, start + size),
+      page,
+      totalPages,
+      totalResults,
+    };
+  }
+
+  async findMovieSessions(externalId: string) {
+    const group = await this.groupPublishedMoviesByExternalId(externalId);
+    const events = group.get(externalId);
+
+    if (!events || events.length === 0) {
+      throw new NotFoundException(
+        `No upcoming movie sessions found for externalId ${externalId}`,
+      );
+    }
+
+    return this.toMovieSessionsResponse(events);
+  }
+
+  private async groupPublishedMoviesByExternalId(externalId?: string) {
+    const events = (await this.eventsRepository.findPublishedMoviesFrom(
+      new Date(),
+      externalId,
+    )) as EventData[];
+
+    const groups = new Map<string, EventData[]>();
+    for (const event of events) {
+      const existing = groups.get(event.externalId);
+      if (existing) {
+        existing.push(event);
+      } else {
+        groups.set(event.externalId, [event]);
+      }
+    }
+    return groups;
+  }
+
+  private toMovieItem(events: EventData[]) {
+    const representative = events[0];
+    const nextSessionTime = events
+      .map((e) => e.date.getTime())
+      .reduce((min, t) => (t < min ? t : min), events[0].date.getTime());
+
+    return {
+      externalId: representative.externalId,
+      name: representative.name,
+      imageUrl: representative.imageUrl,
+      description: representative.description,
+      eventClassification: representative.eventClassification,
+      duration: representative.duration,
+      nextSessionDate: new Date(nextSessionTime).toISOString(),
+      sessionCount: events.length,
+    };
+  }
+
+  private toMovieSessionsResponse(events: EventData[]) {
+    const representative = events[0];
+    const byLocation = new Map<string, { id: string; date: string }[]>();
+
+    for (const event of events) {
+      const session = {
+        id: event.id,
+        date: event.date.toISOString(),
+      };
+      const existing = byLocation.get(event.location);
+      if (existing) {
+        existing.push(session);
+      } else {
+        byLocation.set(event.location, [session]);
+      }
+    }
+
+    const sessionsByLocation = Array.from(byLocation.entries()).map(
+      ([location, sessions]) => ({
+        location,
+        sessions: sessions.sort(
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+        ),
+      }),
+    );
+
+    return {
+      externalId: representative.externalId,
+      name: representative.name,
+      imageUrl: representative.imageUrl,
+      description: representative.description,
+      eventClassification: representative.eventClassification,
+      duration: representative.duration,
+      sessionsByLocation,
     };
   }
 

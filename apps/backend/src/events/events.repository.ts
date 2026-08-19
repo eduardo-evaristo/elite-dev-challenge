@@ -33,6 +33,20 @@ export class EventsRepository {
     return this.prisma.event.count({ where });
   }
 
+  findPublishedMoviesFrom(
+    now: Date,
+    externalId?: string,
+  ): Promise<EventModel[]> {
+    return this.prisma.event.findMany({
+      where: {
+        type: 'MOVIE',
+        status: 'PUBLISHED',
+        date: { gte: now },
+        ...(externalId && { externalId }),
+      },
+    });
+  }
+
   update(id: string, data: EventUpdateInput): Promise<EventModel> {
     return this.prisma.event.update({ where: { id }, data });
   }

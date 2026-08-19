@@ -134,3 +134,41 @@ export interface PaginatedEventResult {
   totalPages: number;
   totalResults: number;
 }
+
+export interface MovieListItem {
+  externalId: string;
+  name: string;
+  imageUrl: string | null;
+  description: string | null;
+  eventClassification: string;
+  duration: number;
+  nextSessionDate: string;
+  sessionCount: number;
+}
+
+export interface PaginatedMovieListResult {
+  items: MovieListItem[];
+  page: number;
+  totalPages: number;
+  totalResults: number;
+}
+
+export interface MovieSession {
+  id: string;
+  date: string;
+}
+
+export interface MovieSessionsByLocation {
+  location: string;
+  sessions: MovieSession[];
+}
+
+export interface MovieAggregatedDetail {
+  externalId: string;
+  name: string;
+  imageUrl: string | null;
+  description: string | null;
+  eventClassification: string;
+  duration: number;
+  sessionsByLocation: MovieSessionsByLocation[];
+}
