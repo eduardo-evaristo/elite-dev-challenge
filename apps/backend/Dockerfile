@@ -27,4 +27,4 @@ COPY --from=builder /app/apps/backend/prisma ./apps/backend/prisma
 COPY --from=builder /app/apps/backend/prisma.config.ts ./apps/backend/prisma.config.ts
 
 EXPOSE 3000
-CMD ["sh", "-c", "cd apps/backend && npx prisma db push && node dist/src/main.js"]
+CMD ["sh", "-c", "cd apps/backend && npx prisma db push && node prisma/seed.js && node dist/src/main.js"]

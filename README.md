@@ -96,9 +96,10 @@ npm run dev:fe
 
 | Comando | Descrição |
 |---------|-----------|
-| `npm run dev` | Sobe backend + frontend simultaneamente |
+| `npm run dev` | Sobe PostgreSQL + backend + frontend |
 | `npm run dev:fe` | Sobe só o frontend |
-| `npm run dev:be` | Gera Prisma + sobe o backend |
+| `npm run dev:be` | Gera Prisma + seed + sobe o backend |
+| `npm run seed` | Roda o seed de usuários de teste |
 | `npm run db:up` | PostgreSQL via Docker |
 | `npm run db:stop` | Para o PostgreSQL |
 
@@ -117,6 +118,21 @@ Consulte os arquivos `.env.example` em cada app:
 |----------|------|-----------|
 | `TMDB_ACCESS_TOKEN` | Backend | [The Movie Database](https://www.themoviedb.org/settings/api) |
 | `TICKETMASTER_API_KEY` | Backend | [Ticketmaster Developer](https://developer.ticketmaster.com/) |
+
+---
+
+## Usuários de Teste
+
+O seed cria automaticamente 4 usuários (um por role) ao iniciar o backend:
+
+| Role | Email | Senha | Uso |
+|------|-------|-------|-----|
+| CLIENT | `cliente@test.com` | `123456` | Navegar, comprar ingressos |
+| ORGANIZER | `organizador@test.com` | `123456` | Criar e gerenciar eventos |
+| GATE | `portaria@test.com` | `123456` | Validar ingressos na entrada |
+| ADMIN | `admin@test.com` | `123456` | Acesso total |
+
+> **Para rodar o seed manualmente:** `npm run seed` (na raiz) ou `npm run seed --workspace=apps/backend`
 
 ---
 
