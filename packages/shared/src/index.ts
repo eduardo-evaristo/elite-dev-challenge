@@ -219,6 +219,11 @@ export interface PaymentApprovedResponse {
   qrContent: string;
 }
 
+export type PublicTicketResponse = Omit<
+  PaymentApprovedResponse,
+  'signature' | 'qrContent'
+>;
+
 export interface PaymentDeclinedResponse {
   status: 'DECLINED';
   message: string;

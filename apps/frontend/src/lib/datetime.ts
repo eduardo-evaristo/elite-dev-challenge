@@ -43,6 +43,28 @@ export function formatEventDate(isoDate: string): string {
   }
 }
 
+export function formatTicketEventDate(isoDate: string): string {
+  try {
+    const d = new Date(isoDate);
+    const weekday = d
+      .toLocaleDateString('pt-BR', { weekday: 'short' })
+      .replace(/\./g, '')
+      .replace(/^./, (c) => c.toUpperCase());
+    const day = d.toLocaleDateString('pt-BR', { day: '2-digit' });
+    const month = d
+      .toLocaleDateString('pt-BR', { month: 'short' })
+      .replace(/\./g, '')
+      .replace(/^./, (c) => c.toUpperCase());
+    const time = d.toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    return `${weekday}, ${day} ${month} \u00B7 ${time}`;
+  } catch {
+    return isoDate;
+  }
+}
+
 export function getYear(isoDate: string): number {
   return new Date(isoDate).getFullYear();
 }

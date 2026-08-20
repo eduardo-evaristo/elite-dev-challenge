@@ -17,6 +17,8 @@ import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedMeusIngressosRouteImport } from './routes/_authenticated/meus-ingressos'
 import { Route as EventosIdRouteImport } from './routes/eventos/$id'
 import { Route as FilmesExternalIdRouteImport } from './routes/filmes/$externalId'
+import { Route as IngressosPublicIdRouteImport } from './routes/ingressos_.$publicId'
+import { Route as AuthenticatedMeusIngressosIdRouteImport } from './routes/_authenticated/meus-ingressos_.$id'
 import { Route as AuthenticatedOrganizadorEventosNovoRouteImport } from './routes/_authenticated/organizador/eventos/novo'
 
 const IndexRoute = IndexRouteImport.update({
@@ -59,6 +61,17 @@ const FilmesExternalIdRoute = FilmesExternalIdRouteImport.update({
   path: '/filmes/$externalId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IngressosPublicIdRoute = IngressosPublicIdRouteImport.update({
+  id: '/ingressos_/$publicId',
+  path: '/ingressos/$publicId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedMeusIngressosIdRoute =
+  AuthenticatedMeusIngressosIdRouteImport.update({
+    id: '/meus-ingressos_/$id',
+    path: '/meus-ingressos/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedOrganizadorEventosNovoRoute =
   AuthenticatedOrganizadorEventosNovoRouteImport.update({
     id: '/organizador/eventos/novo',
@@ -74,6 +87,8 @@ export interface FileRoutesByFullPath {
   '/meus-ingressos': typeof AuthenticatedMeusIngressosRoute
   '/eventos/$id': typeof EventosIdRoute
   '/filmes/$externalId': typeof FilmesExternalIdRoute
+  '/ingressos/$publicId': typeof IngressosPublicIdRoute
+  '/meus-ingressos/$id': typeof AuthenticatedMeusIngressosIdRoute
   '/organizador/eventos/novo': typeof AuthenticatedOrganizadorEventosNovoRoute
 }
 export interface FileRoutesByTo {
@@ -84,6 +99,8 @@ export interface FileRoutesByTo {
   '/meus-ingressos': typeof AuthenticatedMeusIngressosRoute
   '/eventos/$id': typeof EventosIdRoute
   '/filmes/$externalId': typeof FilmesExternalIdRoute
+  '/ingressos/$publicId': typeof IngressosPublicIdRoute
+  '/meus-ingressos/$id': typeof AuthenticatedMeusIngressosIdRoute
   '/organizador/eventos/novo': typeof AuthenticatedOrganizadorEventosNovoRoute
 }
 export interface FileRoutesById {
@@ -96,6 +113,8 @@ export interface FileRoutesById {
   '/_authenticated/meus-ingressos': typeof AuthenticatedMeusIngressosRoute
   '/eventos/$id': typeof EventosIdRoute
   '/filmes/$externalId': typeof FilmesExternalIdRoute
+  '/ingressos_/$publicId': typeof IngressosPublicIdRoute
+  '/_authenticated/meus-ingressos_/$id': typeof AuthenticatedMeusIngressosIdRoute
   '/_authenticated/organizador/eventos/novo': typeof AuthenticatedOrganizadorEventosNovoRoute
 }
 export interface FileRouteTypes {
@@ -108,6 +127,8 @@ export interface FileRouteTypes {
     | '/meus-ingressos'
     | '/eventos/$id'
     | '/filmes/$externalId'
+    | '/ingressos/$publicId'
+    | '/meus-ingressos/$id'
     | '/organizador/eventos/novo'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -118,6 +139,8 @@ export interface FileRouteTypes {
     | '/meus-ingressos'
     | '/eventos/$id'
     | '/filmes/$externalId'
+    | '/ingressos/$publicId'
+    | '/meus-ingressos/$id'
     | '/organizador/eventos/novo'
   id:
     | '__root__'
@@ -129,6 +152,8 @@ export interface FileRouteTypes {
     | '/_authenticated/meus-ingressos'
     | '/eventos/$id'
     | '/filmes/$externalId'
+    | '/ingressos_/$publicId'
+    | '/_authenticated/meus-ingressos_/$id'
     | '/_authenticated/organizador/eventos/novo'
   fileRoutesById: FileRoutesById
 }
@@ -139,6 +164,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   EventosIdRoute: typeof EventosIdRoute
   FilmesExternalIdRoute: typeof FilmesExternalIdRoute
+  IngressosPublicIdRoute: typeof IngressosPublicIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -199,6 +225,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FilmesExternalIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ingressos_/$publicId': {
+      id: '/ingressos_/$publicId'
+      path: '/ingressos/$publicId'
+      fullPath: '/ingressos/$publicId'
+      preLoaderRoute: typeof IngressosPublicIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/meus-ingressos_/$id': {
+      id: '/_authenticated/meus-ingressos_/$id'
+      path: '/meus-ingressos/$id'
+      fullPath: '/meus-ingressos/$id'
+      preLoaderRoute: typeof AuthenticatedMeusIngressosIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/organizador/eventos/novo': {
       id: '/_authenticated/organizador/eventos/novo'
       path: '/organizador/eventos/novo'
@@ -212,12 +252,14 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteChildren {
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
   AuthenticatedMeusIngressosRoute: typeof AuthenticatedMeusIngressosRoute
+  AuthenticatedMeusIngressosIdRoute: typeof AuthenticatedMeusIngressosIdRoute
   AuthenticatedOrganizadorEventosNovoRoute: typeof AuthenticatedOrganizadorEventosNovoRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
   AuthenticatedMeusIngressosRoute: AuthenticatedMeusIngressosRoute,
+  AuthenticatedMeusIngressosIdRoute: AuthenticatedMeusIngressosIdRoute,
   AuthenticatedOrganizadorEventosNovoRoute:
     AuthenticatedOrganizadorEventosNovoRoute,
 }
@@ -233,6 +275,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   EventosIdRoute: EventosIdRoute,
   FilmesExternalIdRoute: FilmesExternalIdRoute,
+  IngressosPublicIdRoute: IngressosPublicIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

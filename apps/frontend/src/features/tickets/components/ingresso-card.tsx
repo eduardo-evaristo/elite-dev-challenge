@@ -1,4 +1,5 @@
 import { MapPin, Calendar, QrCode, Armchair } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 import type { PaymentApprovedResponse } from '@elite-dev/shared';
 
 import { cn } from '@/lib/utils';
@@ -11,9 +12,11 @@ interface IngressoCardProps {
 
 export function IngressoCard({ ticket, className }: IngressoCardProps) {
   return (
-    <div
+    <Link
+      to='/meus-ingressos/$id'
+      params={{ id: ticket.id }}
       className={cn(
-        'flex overflow-hidden rounded-md border border-line bg-surface',
+        'flex overflow-hidden rounded-md border border-line bg-surface transition-colors hover:bg-muted',
         className,
       )}
     >
@@ -70,6 +73,6 @@ export function IngressoCard({ ticket, className }: IngressoCardProps) {
           Ver <span className='hidden md:inline'>ingresso</span>
         </span>
       </div>
-    </div>
+    </Link>
   );
 }
