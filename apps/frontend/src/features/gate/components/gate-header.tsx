@@ -9,12 +9,12 @@ export function GateHeader({ className }: GateHeaderProps) {
   return (
     <header
       className={cn(
-        'flex h-16 items-center justify-between bg-surface px-8',
+        'flex h-14 items-center justify-between border-b border-line bg-surface px-4',
         className,
       )}
     >
-      <span className='text-[22px] font-bold text-ink'>guichê</span>
-      <div className='flex items-center gap-1.5'>
+      <span className='text-[20px] font-bold text-ink'>guichê</span>
+      <div className='flex items-center gap-2'>
         <ShieldCheck className='size-[18px] fill-[#9B2531]' />
         <span className='text-[13px] font-semibold text-[#9B2531]'>
           Portaria

@@ -29,9 +29,13 @@ export const Route = createFileRoute(
     }
   },
   loader: async ({ context, params }) => {
-    await context.queryClient.ensureQueryData(
-      eventDetailOptions(params.eventId),
-    );
+    try {
+      await context.queryClient.ensureQueryData(
+        eventDetailOptions(params.eventId),
+      );
+    } catch (error) {
+      console.error('[Portaria] Failed to load event detail:', error);
+    }
   },
   component: ValidarComponent,
 });
@@ -79,7 +83,7 @@ function ValidarComponent() {
 
   return (
     <div className='flex min-h-screen flex-col bg-[#F5F4F0]'>
-      <header className='flex h-16 items-center gap-4 bg-surface px-4'>
+      <header className='flex h-14 items-center gap-3 border-b border-line bg-surface p-4'>
         <button
           type='button'
           onClick={() => navigate({ to: '/portaria' })}
@@ -87,7 +91,7 @@ function ValidarComponent() {
         >
           <ArrowLeft className='size-6' />
         </button>
-        <div className='flex flex-col'>
+        <div className='flex w-full flex-col gap-0.5'>
           <span className='text-[15px] font-semibold text-ink'>
             {event?.name}
           </span>

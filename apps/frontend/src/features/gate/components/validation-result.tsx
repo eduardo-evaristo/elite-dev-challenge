@@ -48,15 +48,17 @@ export function ValidationResult({
   }
 
   return (
-    <div className={`fixed inset-0 z-50 flex flex-col ${bgColor}`}>
-      <header className='flex items-center gap-4 px-6 py-6'>
+    <div className={`fixed inset-0 z-50 flex flex-col p-6 ${bgColor}`}>
+      <header className='flex items-center justify-between'>
         <button type='button' onClick={onBack} className='text-white'>
           <ArrowLeft className='size-6' />
         </button>
-        <span className='text-[15px] font-medium text-white'>{eventName}</span>
+        <span className='text-[13px] font-medium text-white/67'>
+          {eventName}
+        </span>
       </header>
 
-      <div className='flex flex-1 flex-col items-center justify-center gap-4 px-6'>
+      <div className='flex flex-1 flex-col items-center justify-center gap-5'>
         <Icon className='size-24 text-white' />
         <h1 className='text-center text-[28px] font-bold text-white'>
           {title}
@@ -64,15 +66,13 @@ export function ValidationResult({
         <p className='text-center text-[17px] text-white/80'>{subtitle}</p>
       </div>
 
-      <div className='px-6 pb-8'>
-        <button
-          type='button'
-          onClick={onNext}
-          className='w-full rounded-md bg-white px-6 py-4 text-[17px] font-semibold text-ink transition-colors hover:bg-muted cursor-pointer'
-        >
-          Validar próximo
-        </button>
-      </div>
+      <button
+        type='button'
+        onClick={onNext}
+        className='w-full rounded-md bg-white py-[18px] px-6 text-center text-[17px] font-semibold text-ink transition-colors hover:bg-muted cursor-pointer'
+      >
+        Validar próximo
+      </button>
     </div>
   );
 }

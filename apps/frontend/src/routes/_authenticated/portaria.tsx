@@ -34,23 +34,23 @@ function PortariaComponent() {
   return (
     <div className='flex min-h-screen flex-col bg-[#F5F4F0]'>
       <GateHeader />
-      <main className='flex w-full max-w-md flex-1 flex-col px-4 py-6 mx-auto'>
-        <h1 className='text-[24px] font-bold text-ink'>Eventos de hoje</h1>
-        <p className='mt-2 text-[14px] text-muted-foreground capitalize'>
-          {dateStr}
-        </p>
+      <main className='flex w-full max-w-md flex-1 flex-col gap-5 px-4 py-6 mx-auto'>
+        <div>
+          <h1 className='text-[24px] font-bold text-ink'>Eventos de hoje</h1>
+          <p className='mt-2 text-[14px] text-muted-foreground'>{dateStr}</p>
+        </div>
 
         {events.length === 0 ? (
-          <div className='mt-12 flex flex-col items-center gap-4 rounded-md border border-[#D8D2C4] bg-white p-8'>
-            <div className='flex size-14 items-center justify-center rounded-full bg-muted'>
+          <div className='flex flex-col items-center gap-4 rounded-md border border-line bg-white py-12 px-6'>
+            <div className='flex size-14 items-center justify-center rounded-full bg-[#F5F4F0]'>
               <CalendarX className='size-7 text-muted-foreground' />
             </div>
-            <p className='text-center text-[16px] text-ink'>
+            <p className='text-center text-[16px] font-semibold text-ink'>
               Nenhum evento programado para hoje.
             </p>
           </div>
         ) : (
-          <div className='mt-6 flex flex-col gap-3'>
+          <div className='flex flex-col gap-3'>
             {events.map((event) => (
               <GateEventCard
                 key={event.id}

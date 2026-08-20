@@ -1,4 +1,3 @@
-import { Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EventItem } from '@elite-dev/shared';
 
@@ -25,17 +24,14 @@ export function GateEventCard({
       type='button'
       onClick={onSelect}
       className={cn(
-        'w-full rounded-md border border-[#D8D2C4] bg-white p-5 text-left transition-colors hover:bg-muted cursor-pointer',
+        'w-full rounded-md border border-line bg-white py-5 px-[18px] text-left transition-colors hover:bg-muted cursor-pointer',
         className,
       )}
     >
       <h3 className='text-[18px] font-semibold text-ink'>{event.name}</h3>
-      <div className='mt-1 flex items-center gap-1.5'>
-        <Clock className='size-3.5 text-muted-foreground' />
-        <span className='text-[14px] text-muted-foreground'>
-          {formatTime(event.date)} · {event.location}
-        </span>
-      </div>
+      <p className='mt-2 text-[14px] text-muted-foreground'>
+        {formatTime(event.date)} · {event.location}
+      </p>
     </button>
   );
 }

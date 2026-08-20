@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface ManualEntryProps {
   onSubmit: (manualEntryCode: string) => void;
@@ -19,31 +18,38 @@ export function ManualEntry({ onSubmit, disabled }: ManualEntryProps) {
     }
   }
 
+  const canSubmit = !disabled && value.replace(/[^A-Z0-9]/gi, '').length === 16;
+
   return (
-    <div className='flex flex-col gap-2 px-4 py-3'>
+    <div className='flex flex-col gap-3 border-t border-line bg-white py-5 px-4'>
       <p className='text-[13px] text-muted-foreground'>
         Ou digite o código manualmente
       </p>
-      <div className='flex gap-2'>
-        <Input
+      <div className='flex items-center gap-[10px]'>
+        <input
           type='text'
           placeholder='Código do ingresso'
           value={value}
           onChange={(e) => setValue(e.target.value.toUpperCase())}
-          className='flex-1 font-mono text-[15px] tracking-wider uppercase placeholder:normal-case placeholder:tracking-normal'
+          className={cn(
+            'flex-1 rounded-md border border-line bg-[#F5F4F0] px-[14px] py-[14px] text-[15px] text-ink placeholder:text-[#A89E8E] focus:outline-none focus:ring-1 focus:ring-ring',
+          )}
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleSubmit();
           }}
           disabled={disabled}
         />
-        <Button
+        <button
           type='button'
           onClick={handleSubmit}
-          disabled={disabled || value.replace(/[^A-Z0-9]/gi, '').length !== 16}
-          className='px-5'
+          disabled={!canSubmit}
+          className={cn(
+            'rounded-md bg-[#9B2531] py-[14px] px-[18px] text-[15px] font-semibold text-white transition-colors cursor-pointer',
+            !canSubmit && 'opacity-50 cursor-not-allowed',
+          )}
         >
           Validar
-        </Button>
+        </button>
       </div>
     </div>
   );
