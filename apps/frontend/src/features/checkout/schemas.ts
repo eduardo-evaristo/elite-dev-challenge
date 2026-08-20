@@ -7,6 +7,7 @@ export const checkoutSearchSchema = z.object({
   seatIds: z.array(z.string()).optional(),
   ticketTypeId: z.string().optional(),
   price: z.number(),
+  expiresAt: z.string().optional(),
 });
 
 export type CheckoutSearch = z.infer<typeof checkoutSearchSchema>;

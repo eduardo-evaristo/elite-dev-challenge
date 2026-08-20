@@ -1,6 +1,7 @@
 import ReactDOM from 'react-dom/client';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'sonner';
 import { routeTree } from './routeTree.gen';
 import './index.css';
 
@@ -48,6 +49,19 @@ if (!rootElement.innerHTML) {
   root.render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
+      <Toaster
+        theme='light'
+        position='top-center'
+        toastOptions={{
+          style: {
+            background: '#ffffff',
+            border: '1px solid #d8d2c4',
+            color: '#221f1c',
+            fontFamily: 'IBM Plex Sans, sans-serif',
+          },
+        }}
+        richColors
+      />
     </QueryClientProvider>,
   );
 }

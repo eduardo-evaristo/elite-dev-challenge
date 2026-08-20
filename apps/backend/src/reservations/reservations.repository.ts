@@ -21,7 +21,9 @@ export class ReservationsRepository {
 
   create(data: ReservationCreateInput): Promise<ReservationModel> {
     return this.prisma.$transaction(async (tx) => {
-      const reservation = await tx.reservation.create({ data });
+      const reservation = await tx.reservation.create({
+        data: { ...data, expiresAt: new Date(Date.now() + 10 * 60 * 1000) },
+      });
       if (data.seat) {
         await tx.seat.update({
           where: { id: (data.seat as { connect: { id: string } }).connect.id },
@@ -49,6 +51,7 @@ export class ReservationsRepository {
           user: { connect: { id: params.userId } },
           ticketType: { connect: { id: params.ticketTypeId } },
           status: 'PENDING',
+          expiresAt: new Date(Date.now() + 10 * 60 * 1000),
         },
       });
     });
@@ -86,6 +89,40 @@ export class ReservationsRepository {
     return this.prisma.reservation.update({
       where: { id },
       data: { paymentStatus: 'DECLINED' },
+    });
+  }
+
+  cancel(id: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const reservation = await tx.reservation.update({
+        where: { id },
+        data: { status: 'CANCELLED' },
+      });
+
+      if (reservation.seatId) {
+        await tx.seat.update({
+          where: { id: reservation.seatId },
+          data: { status: 'AVAILABLE' },
+        });
+      }
+
+      if (reservation.ticketTypeId) {
+        await tx.ticketType.updateMany({
+          where: { id: reservation.ticketTypeId },
+          data: { availableCount: { increment: 1 } },
+        });
+      }
+
+      return reservation;
+    });
+  }
+
+  findExpiredPending() {
+    return this.prisma.reservation.findMany({
+      where: {
+        status: 'PENDING',
+        expiresAt: { lt: new Date() },
+      },
     });
   }
 }

@@ -168,6 +168,7 @@ model Reservation {
 
   status        ReservationStatus @default(PENDING)
   paymentStatus PaymentStatus?
+  expiresAt     DateTime?
 
   ticket Ticket?
 

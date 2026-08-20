@@ -16,9 +16,14 @@ import { cardDataSchema, type CardData } from '../schemas';
 interface PaymentFormProps {
   onBack: () => void;
   reservationIds: string[];
+  onCancel: () => void;
 }
 
-export function PaymentForm({ onBack, reservationIds }: PaymentFormProps) {
+export function PaymentForm({
+  onBack,
+  reservationIds,
+  onCancel,
+}: PaymentFormProps) {
   const navigate = useNavigate();
   const payReservation = usePayReservation();
   const [payError, setPayError] = useState<string | null>(null);
@@ -203,14 +208,24 @@ export function PaymentForm({ onBack, reservationIds }: PaymentFormProps) {
 
       {/* Button row */}
       <div className='flex items-center justify-between'>
-        <Button
-          type='button'
-          variant='outline'
-          onClick={onBack}
-          className='h-auto rounded-md border-line bg-white px-8 py-4 text-base font-semibold text-muted-foreground shadow-none hover:bg-white focus-visible:ring-0'
-        >
-          Voltar
-        </Button>
+        <div className='flex items-center gap-3'>
+          <Button
+            type='button'
+            variant='outline'
+            onClick={onBack}
+            className='h-auto rounded-md border-line bg-white px-8 py-4 text-base font-semibold text-muted-foreground shadow-none hover:bg-white focus-visible:ring-0'
+          >
+            Voltar
+          </Button>
+          <Button
+            type='button'
+            variant='ghost'
+            onClick={onCancel}
+            className='h-auto rounded-md px-4 py-4 text-base font-semibold text-muted-foreground shadow-none hover:bg-curtain/10 hover:text-curtain focus-visible:ring-0'
+          >
+            Cancelar reserva
+          </Button>
+        </div>
         <Button
           type='submit'
           form='payment-form'

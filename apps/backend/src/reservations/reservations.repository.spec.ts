@@ -44,6 +44,7 @@ describe('ReservationsRepository', () => {
     ticketTypeId: null,
     status: 'PENDING',
     paymentStatus: null,
+    expiresAt: new Date(Date.now() + 10 * 60 * 1000),
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -133,7 +134,12 @@ describe('ReservationsRepository', () => {
 
       const result = await repository.create(data);
 
-      expect(reservationCreate).toHaveBeenCalledWith({ data });
+      expect(reservationCreate).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          ...data,
+          expiresAt: expect.any(Date),
+        }),
+      });
       expect(seatUpdate).toHaveBeenCalledWith({
         where: { id: 'seat-1' },
         data: { status: 'RESERVED' },
@@ -168,7 +174,12 @@ describe('ReservationsRepository', () => {
 
       const result = await repository.create(data);
 
-      expect(reservationCreate).toHaveBeenCalledWith({ data });
+      expect(reservationCreate).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          ...data,
+          expiresAt: expect.any(Date),
+        }),
+      });
       expect(seatUpdate).not.toHaveBeenCalled();
       expect(result).toEqual(ticketTypeReservation);
     });
@@ -292,7 +303,10 @@ describe('ReservationsRepository', () => {
       const result = await repository.createTicketTypeReservation(params);
 
       expect(reservationCreate).toHaveBeenCalledWith({
-        data: expectedCreateData,
+        data: expect.objectContaining({
+          ...expectedCreateData,
+          expiresAt: expect.any(Date),
+        }),
       });
       expect(result).toEqual(ticketTypeReservation);
     });

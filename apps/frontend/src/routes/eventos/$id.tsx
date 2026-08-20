@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
+import { toast } from 'sonner';
 
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/features/home/components/footer';
@@ -19,6 +21,13 @@ export const Route = createFileRoute('/eventos/$id')({
 function RouteComponent() {
   const { id } = Route.useParams();
   const { data: event, isLoading, isError } = useEventDetail(id);
+
+  useEffect(() => {
+    if (sessionStorage.getItem('reservation_expired') === '1') {
+      sessionStorage.removeItem('reservation_expired');
+      toast.error('Sua reserva expirou. Tente novamente.');
+    }
+  }, []);
 
   if (isLoading) {
     return (

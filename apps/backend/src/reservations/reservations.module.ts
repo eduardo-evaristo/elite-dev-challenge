@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ReservationsService } from './reservations.service';
 import { ReservationsController } from './reservations.controller';
 import { ReservationsRepository } from './reservations.repository';
@@ -7,7 +8,7 @@ import { TicketsModule } from 'src/tickets/tickets.module';
 import { PaymentsModule } from 'src/payments/payments.module';
 
 @Module({
-  imports: [TicketsModule, PaymentsModule],
+  imports: [ScheduleModule.forRoot(), TicketsModule, PaymentsModule],
   controllers: [ReservationsController],
   providers: [ReservationsService, ReservationsRepository, PrismaService],
   exports: [ReservationsService],

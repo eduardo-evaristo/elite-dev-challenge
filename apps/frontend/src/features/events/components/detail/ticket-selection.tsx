@@ -56,6 +56,7 @@ export function TicketSelection({
           ticketTypeId: selectedTicketTypeId!,
           price: selected.price,
           reservationIds: [res.id],
+          expiresAt: res.expiresAt ?? undefined,
         },
       });
     } catch (err) {

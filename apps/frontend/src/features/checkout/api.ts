@@ -4,6 +4,7 @@ import type {
   ReservationResponse,
   PayReservationRequest,
   PaymentResultResponse,
+  CancelReservationResponse,
 } from '@elite-dev/shared';
 
 export async function createReservation(
@@ -23,6 +24,15 @@ export async function payReservation(
   const { data } = await httpClient.post<PaymentResultResponse>(
     `/reservations/${id}/pay`,
     payload,
+  );
+  return data;
+}
+
+export async function cancelReservation(
+  id: string,
+): Promise<CancelReservationResponse> {
+  const { data } = await httpClient.post<CancelReservationResponse>(
+    `/reservations/${id}/cancel`,
   );
   return data;
 }

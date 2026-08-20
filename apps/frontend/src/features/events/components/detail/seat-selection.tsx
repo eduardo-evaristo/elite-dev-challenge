@@ -56,6 +56,7 @@ export function SeatSelection({
 
     setError(null);
     const reservationIds: string[] = [];
+    let expiresAt: string | undefined;
 
     try {
       const res = await createReservation.mutateAsync({
@@ -63,6 +64,7 @@ export function SeatSelection({
         seatId: selectedSeatId!,
       });
       reservationIds.push(res.id);
+      expiresAt = res.expiresAt ?? undefined;
     } catch (err) {
       if (isAxiosError(err) && err.response?.status === 409) {
         setError('Este assento acabou de ser reservado por outra pessoa.');
@@ -80,6 +82,7 @@ export function SeatSelection({
         seatIds: [selectedSeatId!],
         price,
         reservationIds,
+        expiresAt,
       },
     });
   };

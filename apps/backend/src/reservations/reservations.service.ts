@@ -4,8 +4,10 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import { Prisma } from '../generated/prisma/client';
 import { ReservationsRepository } from './reservations.repository';
 import { CreateReservationDto } from './dto/create-reservation.dto';
@@ -18,6 +20,8 @@ import type { ReservationModel } from '../generated/prisma/models';
 
 @Injectable()
 export class ReservationsService {
+  private readonly logger = new Logger(ReservationsService.name);
+
   constructor(
     private readonly reservationsRepository: ReservationsRepository,
     @Inject(PAYMENT_PROVIDER) private readonly paymentProvider: PaymentProvider,
@@ -77,6 +81,38 @@ export class ReservationsService {
     }
 
     throw new InternalServerErrorException('Estado de pagamento não suportado');
+  }
+
+  async cancel(reservationId: string, userId: string) {
+    const reservation =
+      await this.reservationsRepository.findByIdWithRelations(reservationId);
+
+    if (!reservation || reservation.userId !== userId) {
+      throw new NotFoundException(`Reserva ${reservationId} não encontrada`);
+    }
+
+    if (reservation.status !== 'PENDING') {
+      throw new BadRequestException('Reserva não está pendente');
+    }
+
+    return this.reservationsRepository.cancel(reservationId);
+  }
+
+  @Cron('*/30 * * * * *')
+  async handleExpiredReservations() {
+    const expired = await this.reservationsRepository.findExpiredPending();
+
+    for (const reservation of expired) {
+      try {
+        await this.reservationsRepository.cancel(reservation.id);
+        this.logger.log(`Reservation ${reservation.id} expired and cancelled`);
+      } catch (error) {
+        this.logger.error(
+          `Failed to cancel expired reservation ${reservation.id}`,
+          error instanceof Error ? error.message : String(error),
+        );
+      }
+    }
   }
 
   private async createSeatReservation(
@@ -150,6 +186,7 @@ export class ReservationsService {
       ticketTypeId: reservation.ticketTypeId,
       status: reservation.status,
       createdAt: reservation.createdAt.toISOString(),
+      expiresAt: reservation.expiresAt?.toISOString() ?? null,
     };
   }
 }

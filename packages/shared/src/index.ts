@@ -187,6 +187,12 @@ export interface ReservationResponse {
   ticketTypeId: string | null;
   status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
   createdAt: string;
+  expiresAt: string | null;
+}
+
+export interface CancelReservationResponse {
+  id: string;
+  status: 'CANCELLED';
 }
 
 export interface PayReservationRequest {

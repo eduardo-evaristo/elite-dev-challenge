@@ -25,6 +25,8 @@ describe('ReservationsService', () => {
       findByIdWithRelations: jest.fn(),
       confirm: jest.fn(),
       markDeclined: jest.fn(),
+      cancel: jest.fn(),
+      findExpiredPending: jest.fn(),
     };
 
     paymentProvider = { charge: jest.fn() };

@@ -32,4 +32,14 @@ export class ReservationsController {
   ) {
     return this.reservationsService.pay(id, req.user.userId, dto.cardNumber);
   }
+
+  @Post(':id/cancel')
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles(Role.CLIENT)
+  cancel(
+    @Param('id') id: string,
+    @Req() req: Request & { user: AuthenticatedUser },
+  ) {
+    return this.reservationsService.cancel(id, req.user.userId);
+  }
 }
