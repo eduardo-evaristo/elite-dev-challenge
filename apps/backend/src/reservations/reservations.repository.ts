@@ -1,0 +1,47 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma.service';
+import type {
+  ReservationCreateInput,
+  ReservationModel,
+  SeatModel,
+  TicketTypeModel,
+} from '../generated/prisma/models';
+
+@Injectable()
+export class ReservationsRepository {
+  constructor(private readonly prisma: PrismaService) {}
+
+  findSeat(id: string): Promise<SeatModel | null> {
+    return this.prisma.seat.findUnique({ where: { id } });
+  }
+
+  findTicketType(id: string): Promise<TicketTypeModel | null> {
+    return this.prisma.ticketType.findUnique({ where: { id } });
+  }
+
+  create(data: ReservationCreateInput): Promise<ReservationModel> {
+    return this.prisma.reservation.create({ data });
+  }
+
+  createTicketTypeReservation(params: {
+    eventId: string;
+    userId: string;
+    ticketTypeId: string;
+  }): Promise<ReservationModel | null> {
+    return this.prisma.$transaction(async (tx) => {
+      const { count } = await tx.ticketType.updateMany({
+        where: { id: params.ticketTypeId, availableCount: { gte: 1 } },
+        data: { availableCount: { decrement: 1 } },
+      });
+      if (count === 0) return null;
+      return tx.reservation.create({
+        data: {
+          event: { connect: { id: params.eventId } },
+          user: { connect: { id: params.userId } },
+          ticketType: { connect: { id: params.ticketTypeId } },
+          status: 'PENDING',
+        },
+      });
+    });
+  }
+}
