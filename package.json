@@ -4,5 +4,12 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "scripts": {
+    "dev": "npm run dev:be & npm run dev:fe",
+    "dev:fe": "npm run dev --workspace=apps/frontend",
+    "dev:be": "npx prisma generate --schema=apps/backend/prisma/schema.prisma && npm run dev --workspace=apps/backend",
+    "db:up": "docker compose -f docker-compose.dev.yml up -d",
+    "db:stop": "docker compose -f docker-compose.dev.yml down"
+  }
 }
