@@ -58,6 +58,7 @@ function RouteComponent() {
 
       {isSeated && basePrice !== undefined && (
         <SeatSelection
+          eventId={event.id}
           seats={event.seats}
           price={basePrice}
           contextLabel={event.name}
@@ -65,7 +66,9 @@ function RouteComponent() {
         />
       )}
 
-      {isStanding && <TicketSelection ticketTypes={event.ticketTypes} />}
+      {isStanding && (
+        <TicketSelection eventId={event.id} ticketTypes={event.ticketTypes} />
+      )}
 
       <Footer />
     </div>

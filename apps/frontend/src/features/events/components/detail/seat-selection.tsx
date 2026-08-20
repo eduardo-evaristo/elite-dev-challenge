@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { Armchair as SeatIcon } from 'lucide-react';
 import type { SeatResponse } from '@elite-dev/shared';
 
@@ -7,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { SeatMap } from './seat-map';
 
 interface SeatSelectionProps {
+  eventId: string;
   seats: SeatResponse[];
   price: number;
   contextLabel: string;
@@ -14,11 +16,13 @@ interface SeatSelectionProps {
 }
 
 export function SeatSelection({
+  eventId,
   seats,
   price,
   contextLabel,
   contextDescription,
 }: SeatSelectionProps) {
+  const navigate = useNavigate();
   const [selectedSeatIds, setSelectedSeatIds] = useState<Set<string>>(
     new Set(),
   );
@@ -95,6 +99,18 @@ export function SeatSelection({
         <button
           type='button'
           disabled={!hasSelection}
+          onClick={() =>
+            navigate({
+              to: '/checkout',
+              search: {
+                eventId,
+                mode: 'seat',
+                seatIds: [...selectedSeatIds],
+                price,
+                reservationIds: [],
+              },
+            })
+          }
           className={cn(
             'w-fit rounded-md px-8 py-4 text-base font-semibold text-white transition-colors',
             hasSelection

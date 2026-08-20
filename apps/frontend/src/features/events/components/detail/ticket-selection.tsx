@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { Ticket as TicketIcon } from 'lucide-react';
 import type { TicketTypeResponse } from '@elite-dev/shared';
 
@@ -6,10 +7,15 @@ import { formatCurrency } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 
 interface TicketSelectionProps {
+  eventId: string;
   ticketTypes: TicketTypeResponse[];
 }
 
-export function TicketSelection({ ticketTypes }: TicketSelectionProps) {
+export function TicketSelection({
+  eventId,
+  ticketTypes,
+}: TicketSelectionProps) {
+  const navigate = useNavigate();
   const [selectedTicketTypeId, setSelectedTicketTypeId] = useState<
     string | null
   >(null);
@@ -60,6 +66,18 @@ export function TicketSelection({ ticketTypes }: TicketSelectionProps) {
         <button
           type='button'
           disabled={!selected}
+          onClick={() =>
+            navigate({
+              to: '/checkout',
+              search: {
+                eventId,
+                mode: 'ticket',
+                ticketTypeId: selectedTicketTypeId!,
+                price: selected!.price,
+                reservationIds: [],
+              },
+            })
+          }
           className={cn(
             'w-fit rounded-md px-8 py-4 text-base font-semibold text-white transition-colors',
             selected

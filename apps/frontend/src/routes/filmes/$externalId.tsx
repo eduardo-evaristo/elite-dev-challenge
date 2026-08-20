@@ -81,6 +81,7 @@ function RouteComponent() {
         sessionEvent.seats.length > 0 &&
         sessionEvent.ticketTypes[0]?.price !== undefined && (
           <SeatSelection
+            eventId={sessionEvent.id}
             seats={sessionEvent.seats}
             price={sessionEvent.ticketTypes[0].price}
             contextLabel={
