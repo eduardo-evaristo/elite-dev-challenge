@@ -64,14 +64,15 @@ export function Navbar() {
         </div>
 
         {role === 'CLIENT' && (
-          <button
+          <Link
+            to='/meus-ingressos'
             className={cn(
               'rounded-md bg-curtain px-4 py-2 text-sm font-semibold text-white',
               'transition-colors hover:bg-curtain-hover',
             )}
           >
             Meus ingressos
-          </button>
+          </Link>
         )}
 
         {role === 'ORGANIZER' && (
