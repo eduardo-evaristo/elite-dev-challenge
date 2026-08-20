@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Search, Menu, X, User } from 'lucide-react';
+import { Search, Menu, X, User, LogOut } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 
 import { useGetMe } from '@/features/auth/hooks/use-get-me';
+import { useLogout } from '@/features/auth/hooks/use-logout';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -28,6 +29,7 @@ const gateLinks: { label: string; href: string }[] = [];
 
 export function Navbar() {
   const { data: user } = useGetMe();
+  const logoutMutation = useLogout();
   const role = user?.role ?? null;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -139,9 +141,19 @@ export function Navbar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
               {user ? (
-                <DropdownMenuLabel>
-                  {user.name} {user.lastName}
-                </DropdownMenuLabel>
+                <>
+                  <DropdownMenuLabel>
+                    {user.name} {user.lastName}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => logoutMutation.mutate()}
+                    className='text-destructive focus:text-destructive'
+                  >
+                    <LogOut className='mr-2 size-4' />
+                    Sair
+                  </DropdownMenuItem>
+                </>
               ) : (
                 <>
                   <DropdownMenuLabel>Conta</DropdownMenuLabel>
@@ -249,6 +261,19 @@ export function Navbar() {
                   Criar conta
                 </Link>
               </div>
+            )}
+
+            {user && (
+              <button
+                className='flex items-center gap-2 text-sm font-medium text-destructive transition-colors hover:text-destructive/80'
+                onClick={() => {
+                  setDrawerOpen(false);
+                  logoutMutation.mutate();
+                }}
+              >
+                <LogOut className='size-4' />
+                Sair
+              </button>
             )}
           </div>
         </div>

@@ -35,6 +35,10 @@ export async function register(data: RegisterRequest): Promise<LoginResponse> {
   return result;
 }
 
+export async function logout(): Promise<void> {
+  await httpClient.post('/auth/logout');
+}
+
 export async function getMe(): Promise<User | null> {
   try {
     const { data } = await httpClient.get<User>('/auth/me');
