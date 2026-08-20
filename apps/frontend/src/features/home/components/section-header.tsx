@@ -9,7 +9,7 @@ interface SectionHeaderProps {
 export function SectionHeader({ title, onPrev, onNext }: SectionHeaderProps) {
   return (
     <div className='flex items-center justify-between'>
-      <h2 className='text-2xl font-semibold text-ink'>{title}</h2>
+      <h2 className='text-xl font-semibold text-ink md:text-2xl'>{title}</h2>
       <div className='flex items-center gap-2'>
         <button
           onClick={onPrev}

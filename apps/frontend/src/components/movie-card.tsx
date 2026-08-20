@@ -29,7 +29,10 @@ export function MovieCard({
     <button
       type='button'
       onClick={onClick}
-      className={cn('group flex w-[200px] flex-col gap-2 text-left', className)}
+      className={cn(
+        'group flex w-[150px] flex-col gap-2 text-left sm:w-[170px] md:w-[200px]',
+        className,
+      )}
     >
       {posterUrl ? (
         <img

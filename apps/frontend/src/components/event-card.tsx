@@ -31,7 +31,10 @@ export function EventCard({
     <button
       type='button'
       onClick={onClick}
-      className={cn('group flex w-[260px] flex-col gap-2 text-left', className)}
+      className={cn(
+        'group flex w-[200px] flex-col gap-2 text-left sm:w-[230px] md:w-[260px]',
+        className,
+      )}
     >
       <div className='relative aspect-square w-full rounded-md bg-line'>
         {posterUrl && (

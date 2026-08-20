@@ -34,29 +34,31 @@ const socialIcons = [
 
 export function Footer() {
   return (
-    <footer className='flex flex-col gap-8 bg-surface px-20 py-12'>
-      <div className='flex gap-12'>
-        <div className='flex w-[240px] flex-col gap-2'>
+    <footer className='flex flex-col gap-6 bg-surface px-6 py-8 md:gap-8 md:px-20 md:py-12'>
+      <div className='flex flex-col gap-8 md:flex-row md:gap-12'>
+        <div className='flex flex-col gap-2 md:w-[240px]'>
           <span className='text-[22px] font-bold text-ink'>guichê</span>
-          <p className='w-[200px] text-sm text-muted-foreground'>
+          <p className='text-sm text-muted-foreground md:w-[200px]'>
             Descubra eventos e filmes perto de você.
           </p>
         </div>
 
-        {footerColumns.map((col) => (
-          <div key={col.title} className='flex w-[160px] flex-col gap-2'>
-            <h4 className='text-sm font-semibold text-ink'>{col.title}</h4>
-            {col.links.map((link) => (
-              <a
-                key={link}
-                href='#'
-                className='text-[13px] text-muted-foreground transition-colors hover:text-ink'
-              >
-                {link}
-              </a>
-            ))}
-          </div>
-        ))}
+        <div className='grid grid-cols-2 gap-8 sm:grid-cols-3 md:contents'>
+          {footerColumns.map((col) => (
+            <div key={col.title} className='flex flex-col gap-2 md:w-[160px]'>
+              <h4 className='text-sm font-semibold text-ink'>{col.title}</h4>
+              {col.links.map((link) => (
+                <a
+                  key={link}
+                  href='#'
+                  className='text-[13px] text-muted-foreground transition-colors hover:text-ink'
+                >
+                  {link}
+                </a>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className='h-px bg-line' />
@@ -67,7 +69,7 @@ export function Footer() {
         </p>
       </div>
 
-      <div className='flex items-center justify-between gap-4 py-4'>
+      <div className='flex flex-col gap-4 py-2 sm:flex-row sm:items-center sm:justify-between sm:py-4'>
         <div className='flex items-center gap-2'>
           <span className='text-xs text-muted-foreground'>
             Formas de pagamento:

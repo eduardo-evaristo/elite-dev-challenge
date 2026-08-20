@@ -104,7 +104,7 @@ function RouteComponent() {
 
       <Hero slides={heroSlides} />
 
-      <section className='flex flex-col gap-6 px-20 py-12'>
+      <section className='flex flex-col gap-4 px-4 py-8 md:gap-6 md:px-20 md:py-12'>
         <SectionHeader
           title='Filmes em cartaz'
           onPrev={() => scrollMovies(-1)}
@@ -133,7 +133,7 @@ function RouteComponent() {
         </div>
       </section>
 
-      <section className='flex flex-col gap-6 px-20 py-12'>
+      <section className='flex flex-col gap-4 px-4 py-8 md:gap-6 md:px-20 md:py-12'>
         <SectionHeader
           title='Eventos em cartaz'
           onPrev={() => scrollEvents(-1)}

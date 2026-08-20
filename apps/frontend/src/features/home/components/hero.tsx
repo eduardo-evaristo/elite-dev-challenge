@@ -28,7 +28,7 @@ export function Hero({ slides }: HeroProps) {
 
   return (
     <div
-      className='relative flex h-[520px] px-20'
+      className='relative flex h-[400px] px-6 md:h-[520px] md:px-20'
       style={{
         background:
           'linear-gradient(135deg, #2E0A10 0%, #9B2531 40%, #4A1E0A 100%)',
@@ -36,12 +36,16 @@ export function Hero({ slides }: HeroProps) {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      <div className='flex w-[600px] flex-col justify-center gap-4'>
-        <h1 className='text-5xl font-bold text-white'>{slide.title}</h1>
-        <p className='w-[480px] text-lg text-white'>{slide.description}</p>
+      <div className='flex w-full flex-col justify-center gap-3 md:w-[600px] md:gap-4'>
+        <h1 className='text-3xl font-bold text-white md:text-5xl'>
+          {slide.title}
+        </h1>
+        <p className='w-full text-base text-white md:w-[480px] md:text-lg'>
+          {slide.description}
+        </p>
         <button
           className={cn(
-            'w-fit rounded-md bg-curtain px-6 py-3 text-sm font-semibold text-white',
+            'w-fit rounded-md bg-curtain px-5 py-2.5 text-sm font-semibold text-white md:px-6 md:py-3',
             'transition-colors hover:bg-curtain-hover',
           )}
         >
@@ -49,10 +53,10 @@ export function Hero({ slides }: HeroProps) {
         </button>
       </div>
 
-      <div className='absolute left-[860px] top-[110px] h-[300px] w-[520px] rounded-md bg-white/10' />
+      <div className='absolute right-20 top-[110px] hidden h-[300px] w-[520px] rounded-md bg-white/10 md:block' />
 
       {slides.length > 1 && (
-        <div className='absolute bottom-10 left-[692px] flex gap-2'>
+        <div className='absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-2 md:bottom-10 md:left-[692px] md:translate-x-0'>
           {slides.map((_, index) => (
             <button
               key={index}
