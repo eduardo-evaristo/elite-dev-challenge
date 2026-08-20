@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { usePayReservation } from '@/features/checkout/hooks/use-pay-reservation';
 import { cn } from '@/lib/utils';
+import { maskCardNumber, maskExpiry } from '@/lib/masks';
 import { cardDataSchema, type CardData } from '../schemas';
 
 interface PaymentFormProps {
@@ -25,6 +26,7 @@ export function PaymentForm({ onBack, reservationIds }: PaymentFormProps) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<CardData>({
     resolver: zodResolver(cardDataSchema),
@@ -94,12 +96,18 @@ export function PaymentForm({ onBack, reservationIds }: PaymentFormProps) {
             </Label>
             <Input
               id='cardNumber'
-              placeholder='0000 0000 0000 0000'
+              placeholder='0000.0000.0000.0000'
               className={cn(
                 'h-auto border-line bg-paper px-4 py-3 text-[14px] shadow-none',
                 errors.cardNumber && 'border-red-500',
               )}
-              {...register('cardNumber')}
+              {...register('cardNumber', {
+                onChange: (e) => {
+                  setValue('cardNumber', maskCardNumber(e.target.value), {
+                    shouldValidate: true,
+                  });
+                },
+              })}
             />
             {errors.cardNumber && (
               <span className='text-xs text-red-500'>
@@ -123,7 +131,13 @@ export function PaymentForm({ onBack, reservationIds }: PaymentFormProps) {
                   'h-auto border-line bg-paper px-4 py-3 text-[14px] shadow-none',
                   errors.expiry && 'border-red-500',
                 )}
-                {...register('expiry')}
+                {...register('expiry', {
+                  onChange: (e) => {
+                    setValue('expiry', maskExpiry(e.target.value), {
+                      shouldValidate: true,
+                    });
+                  },
+                })}
               />
               {errors.expiry && (
                 <span className='text-xs text-red-500'>
@@ -142,6 +156,8 @@ export function PaymentForm({ onBack, reservationIds }: PaymentFormProps) {
               <Input
                 id='cvv'
                 placeholder='000'
+                maxLength={3}
+                inputMode='numeric'
                 className={cn(
                   'h-auto border-line bg-paper px-4 py-3 text-[14px] shadow-none',
                   errors.cvv && 'border-red-500',

@@ -9,6 +9,7 @@ import {
 
 import { cn } from '@/lib/utils';
 import { formatDuration } from '@/lib/datetime';
+import { maskCurrency } from '@/lib/masks';
 
 interface StepDetailsProps {
   type: 'movie' | 'show';
@@ -157,7 +158,9 @@ export function StepDetails({
               type='text'
               inputMode='decimal'
               value={ticketPrice ?? ''}
-              onChange={(e) => onFieldChange('ticketPrice', e.target.value)}
+              onChange={(e) =>
+                onFieldChange('ticketPrice', maskCurrency(e.target.value))
+              }
               placeholder='R$ 0,00'
               className={inputClass}
             />

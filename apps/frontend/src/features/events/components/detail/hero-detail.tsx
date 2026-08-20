@@ -111,7 +111,7 @@ export function HeroDetail({
             <img
               src={CLASSIFICATION_ICONS[normalized]}
               alt={normalized}
-              className='size-9 shrink-0 rounded-[3px]'
+              className='size-9 shrink-0'
             />
           )}
 
@@ -181,7 +181,7 @@ export function HeroDetail({
               <img
                 src={CLASSIFICATION_ICONS[normalized]}
                 alt={normalized}
-                className='size-7 shrink-0 rounded-[3px]'
+                className='size-7 shrink-0'
               />
             )}
             <span className='text-sm text-white/80'>
@@ -194,7 +194,7 @@ export function HeroDetail({
           <img
             src={CLASSIFICATION_ICONS[normalized]}
             alt={normalized}
-            className='size-7 shrink-0 rounded-[3px]'
+            className='size-7 shrink-0'
           />
         )}
 

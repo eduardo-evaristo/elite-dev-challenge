@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { maskCpf, maskPhone } from '@/lib/masks';
 import { buyerDataSchema, type BuyerData } from '../schemas';
 
 interface BuyerDataFormProps {
@@ -20,6 +21,7 @@ export function BuyerDataForm({
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<BuyerData>({
     resolver: zodResolver(buyerDataSchema),
@@ -89,7 +91,13 @@ export function BuyerDataForm({
               id='cpf'
               placeholder='000.000.000-00'
               className='h-auto border-line bg-surface px-4 py-3 text-[14px] shadow-none'
-              {...register('cpf')}
+              {...register('cpf', {
+                onChange: (e) => {
+                  setValue('cpf', maskCpf(e.target.value), {
+                    shouldValidate: true,
+                  });
+                },
+              })}
             />
             {errors.cpf && (
               <span className='text-xs text-red-500'>{errors.cpf.message}</span>
@@ -107,7 +115,13 @@ export function BuyerDataForm({
               id='phone'
               placeholder='(00) 00000-0000'
               className='h-auto border-line bg-surface px-4 py-3 text-[14px] shadow-none'
-              {...register('phone')}
+              {...register('phone', {
+                onChange: (e) => {
+                  setValue('phone', maskPhone(e.target.value), {
+                    shouldValidate: true,
+                  });
+                },
+              })}
             />
             {errors.phone && (
               <span className='text-xs text-red-500'>

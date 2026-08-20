@@ -3,6 +3,7 @@ import { Armchair, Ticket, Trash2, Plus } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { maskCurrency } from '@/lib/masks';
 
 type Format = 'seated' | 'standing';
 
@@ -316,7 +317,9 @@ function StandingConfig({
             type='text'
             inputMode='decimal'
             value={sector.price}
-            onChange={(e) => updateSector(index, 'price', e.target.value)}
+            onChange={(e) =>
+              updateSector(index, 'price', maskCurrency(e.target.value))
+            }
             placeholder='R$ 0,00'
             className='w-full rounded-md border border-line bg-surface px-3.5 py-2.5 text-sm text-ink outline-none focus:border-curtain md:w-35'
           />
