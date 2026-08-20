@@ -43,6 +43,9 @@ export async function getMe(): Promise<User | null> {
     if (isAxiosError(error) && error.response?.status === 401) {
       return null;
     }
+    if (isAxiosError(error) && !error.response) {
+      return null;
+    }
     throw error;
   }
 }
