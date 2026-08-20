@@ -84,8 +84,6 @@ export class ReservationsService {
     userId: string,
     seatId: string,
   ) {
-    // Precondition: input validation (exists? belongs to the event?), NOT a
-    // concurrency guard — the guard is Reservation.seatId @unique (P2002 below).
     const seat = await this.reservationsRepository.findSeat(seatId);
     if (!seat) {
       throw new NotFoundException(`Assento ${seatId} não encontrado`);
@@ -93,10 +91,6 @@ export class ReservationsService {
     if (seat.eventId !== eventId) {
       throw new BadRequestException('Assento não pertence a este evento');
     }
-    // Seat.status is intentionally NOT consulted or written here: the single
-    // source of truth for seat reservation is Reservation.seatId @unique.
-    // SeatStatus exists in the schema but is not kept synchronized (known
-    // limitation), so checking AVAILABLE would be always-true dead code.
     try {
       const reservation = await this.reservationsRepository.create({
         event: { connect: { id: eventId } },

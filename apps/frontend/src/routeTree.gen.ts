@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
+import { Route as AuthenticatedMeusIngressosRouteImport } from './routes/_authenticated/meus-ingressos'
 import { Route as EventosIdRouteImport } from './routes/eventos/$id'
 import { Route as FilmesExternalIdRouteImport } from './routes/filmes/$externalId'
 import { Route as AuthenticatedOrganizadorEventosNovoRouteImport } from './routes/_authenticated/organizador/eventos/novo'
@@ -42,6 +43,12 @@ const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
   path: '/checkout',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedMeusIngressosRoute =
+  AuthenticatedMeusIngressosRouteImport.update({
+    id: '/meus-ingressos',
+    path: '/meus-ingressos',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const EventosIdRoute = EventosIdRouteImport.update({
   id: '/eventos/$id',
   path: '/eventos/$id',
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
+  '/meus-ingressos': typeof AuthenticatedMeusIngressosRoute
   '/eventos/$id': typeof EventosIdRoute
   '/filmes/$externalId': typeof FilmesExternalIdRoute
   '/organizador/eventos/novo': typeof AuthenticatedOrganizadorEventosNovoRoute
@@ -73,6 +81,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
+  '/meus-ingressos': typeof AuthenticatedMeusIngressosRoute
   '/eventos/$id': typeof EventosIdRoute
   '/filmes/$externalId': typeof FilmesExternalIdRoute
   '/organizador/eventos/novo': typeof AuthenticatedOrganizadorEventosNovoRoute
@@ -84,6 +93,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
+  '/_authenticated/meus-ingressos': typeof AuthenticatedMeusIngressosRoute
   '/eventos/$id': typeof EventosIdRoute
   '/filmes/$externalId': typeof FilmesExternalIdRoute
   '/_authenticated/organizador/eventos/novo': typeof AuthenticatedOrganizadorEventosNovoRoute
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/checkout'
+    | '/meus-ingressos'
     | '/eventos/$id'
     | '/filmes/$externalId'
     | '/organizador/eventos/novo'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/checkout'
+    | '/meus-ingressos'
     | '/eventos/$id'
     | '/filmes/$externalId'
     | '/organizador/eventos/novo'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/_authenticated/checkout'
+    | '/_authenticated/meus-ingressos'
     | '/eventos/$id'
     | '/filmes/$externalId'
     | '/_authenticated/organizador/eventos/novo'
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCheckoutRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/meus-ingressos': {
+      id: '/_authenticated/meus-ingressos'
+      path: '/meus-ingressos'
+      fullPath: '/meus-ingressos'
+      preLoaderRoute: typeof AuthenticatedMeusIngressosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/eventos/$id': {
       id: '/eventos/$id'
       path: '/eventos/$id'
@@ -191,11 +211,13 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
+  AuthenticatedMeusIngressosRoute: typeof AuthenticatedMeusIngressosRoute
   AuthenticatedOrganizadorEventosNovoRoute: typeof AuthenticatedOrganizadorEventosNovoRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
+  AuthenticatedMeusIngressosRoute: AuthenticatedMeusIngressosRoute,
   AuthenticatedOrganizadorEventosNovoRoute:
     AuthenticatedOrganizadorEventosNovoRoute,
 }

@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { isAxiosError } from 'axios';
 import { Ticket as TicketIcon } from 'lucide-react';
 import type { TicketTypeResponse } from '@elite-dev/shared';
 
+import { useGetMe } from '@/features/auth/hooks/use-get-me';
+import { useCreateReservation } from '@/features/checkout/hooks/use-create-reservation';
 import { formatCurrency } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 
@@ -16,11 +19,61 @@ export function TicketSelection({
   ticketTypes,
 }: TicketSelectionProps) {
   const navigate = useNavigate();
+  const { data: user } = useGetMe();
+  const createReservation = useCreateReservation();
   const [selectedTicketTypeId, setSelectedTicketTypeId] = useState<
     string | null
   >(null);
+  const [error, setError] = useState<string | null>(null);
 
   const selected = ticketTypes.find((t) => t.id === selectedTicketTypeId);
+  const isReserving = createReservation.isPending;
+
+  const handleBuyClick = async () => {
+    if (!user) {
+      navigate({
+        to: '/login',
+        search: { redirect: window.location.href },
+      });
+      return;
+    }
+
+    if (!selected || isReserving) return;
+
+    setError(null);
+
+    try {
+      const res = await createReservation.mutateAsync({
+        eventId,
+        ticketTypeId: selectedTicketTypeId!,
+      });
+
+      navigate({
+        to: '/checkout',
+        search: {
+          eventId,
+          mode: 'ticket',
+          ticketTypeId: selectedTicketTypeId!,
+          price: selected.price,
+          reservationIds: [res.id],
+        },
+      });
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 409) {
+        setError('Este setor acabou de esgotar.');
+        return;
+      }
+      setError('Erro ao reservar ingresso. Tente novamente.');
+    }
+  };
+
+  const buttonLabel = !user
+    ? 'Faça login para comprar'
+    : isReserving
+      ? 'Reservando...'
+      : 'Comprar ingressos';
+
+  const buttonDisabled = !user ? false : !selected || isReserving;
 
   return (
     <section className='flex flex-col gap-12 bg-paper px-5 py-12 md:flex-row md:px-20'>
@@ -63,29 +116,20 @@ export function TicketSelection({
           </div>
         )}
 
+        {error && <p className='text-sm font-medium text-red-500'>{error}</p>}
+
         <button
           type='button'
-          disabled={!selected}
-          onClick={() =>
-            navigate({
-              to: '/checkout',
-              search: {
-                eventId,
-                mode: 'ticket',
-                ticketTypeId: selectedTicketTypeId!,
-                price: selected!.price,
-                reservationIds: [],
-              },
-            })
-          }
+          disabled={buttonDisabled}
+          onClick={handleBuyClick}
           className={cn(
             'w-fit rounded-md px-8 py-4 text-base font-semibold text-white transition-colors',
-            selected
-              ? 'bg-curtain hover:bg-curtain-hover'
-              : 'cursor-not-allowed bg-line',
+            buttonDisabled && !isReserving
+              ? 'cursor-not-allowed bg-line'
+              : 'bg-curtain hover:bg-curtain-hover',
           )}
         >
-          Comprar ingressos
+          {buttonLabel}
         </button>
       </div>
 

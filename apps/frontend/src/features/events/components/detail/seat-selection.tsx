@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { isAxiosError } from 'axios';
 import { Armchair as SeatIcon } from 'lucide-react';
 import type { SeatResponse } from '@elite-dev/shared';
 
+import { useGetMe } from '@/features/auth/hooks/use-get-me';
+import { useCreateReservation } from '@/features/checkout/hooks/use-create-reservation';
 import { formatCurrency } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 import { SeatMap } from './seat-map';
@@ -23,11 +26,15 @@ export function SeatSelection({
   contextDescription,
 }: SeatSelectionProps) {
   const navigate = useNavigate();
+  const { data: user } = useGetMe();
+  const createReservation = useCreateReservation();
   const [selectedSeatIds, setSelectedSeatIds] = useState<Set<string>>(
     new Set(),
   );
+  const [error, setError] = useState<string | null>(null);
 
   const toggleSeat = (seatId: string) => {
+    setError(null);
     setSelectedSeatIds((prev) => {
       const next = new Set(prev);
       if (next.has(seatId)) {
@@ -42,6 +49,59 @@ export function SeatSelection({
   const selectedSeats = seats.filter((s) => selectedSeatIds.has(s.id));
   const subtotal = selectedSeats.length * price;
   const hasSelection = selectedSeats.length > 0;
+  const isReserving = createReservation.isPending;
+
+  const handleBuyClick = async () => {
+    if (!user) {
+      navigate({
+        to: '/login',
+        search: { redirect: window.location.href },
+      });
+      return;
+    }
+
+    if (!hasSelection || isReserving) return;
+
+    setError(null);
+    const seatIdList = [...selectedSeatIds];
+    const reservationIds: string[] = [];
+
+    for (const seatId of seatIdList) {
+      try {
+        const res = await createReservation.mutateAsync({
+          eventId,
+          seatId,
+        });
+        reservationIds.push(res.id);
+      } catch (err) {
+        if (isAxiosError(err) && err.response?.status === 409) {
+          setError('Este assento acabou de ser reservado por outra pessoa.');
+          return;
+        }
+        setError('Erro ao reservar assentos. Tente novamente.');
+        return;
+      }
+    }
+
+    navigate({
+      to: '/checkout',
+      search: {
+        eventId,
+        mode: 'seat',
+        seatIds: seatIdList,
+        price,
+        reservationIds,
+      },
+    });
+  };
+
+  const buttonLabel = !user
+    ? 'Faça login para comprar'
+    : isReserving
+      ? 'Reservando...'
+      : 'Comprar ingressos';
+
+  const buttonDisabled = !user ? false : !hasSelection || isReserving;
 
   return (
     <section className='flex flex-col gap-12 bg-paper px-5 py-12 md:flex-row md:px-20'>
@@ -96,29 +156,20 @@ export function SeatSelection({
           </div>
         )}
 
+        {error && <p className='text-sm font-medium text-red-500'>{error}</p>}
+
         <button
           type='button'
-          disabled={!hasSelection}
-          onClick={() =>
-            navigate({
-              to: '/checkout',
-              search: {
-                eventId,
-                mode: 'seat',
-                seatIds: [...selectedSeatIds],
-                price,
-                reservationIds: [],
-              },
-            })
-          }
+          disabled={buttonDisabled}
+          onClick={handleBuyClick}
           className={cn(
             'w-fit rounded-md px-8 py-4 text-base font-semibold text-white transition-colors',
-            hasSelection
-              ? 'bg-curtain hover:bg-curtain-hover'
-              : 'cursor-not-allowed bg-line',
+            buttonDisabled && !isReserving
+              ? 'cursor-not-allowed bg-line'
+              : 'bg-curtain hover:bg-curtain-hover',
           )}
         >
-          Comprar ingressos
+          {buttonLabel}
         </button>
       </div>
 

@@ -20,7 +20,16 @@ export class ReservationsRepository {
   }
 
   create(data: ReservationCreateInput): Promise<ReservationModel> {
-    return this.prisma.reservation.create({ data });
+    return this.prisma.$transaction(async (tx) => {
+      const reservation = await tx.reservation.create({ data });
+      if (data.seat) {
+        await tx.seat.update({
+          where: { id: (data.seat as { connect: { id: string } }).connect.id },
+          data: { status: 'RESERVED' },
+        });
+      }
+      return reservation;
+    });
   }
 
   createTicketTypeReservation(params: {
@@ -58,9 +67,18 @@ export class ReservationsRepository {
   }
 
   confirm(id: string) {
-    return this.prisma.reservation.update({
-      where: { id },
-      data: { status: 'CONFIRMED', paymentStatus: 'APPROVED' },
+    return this.prisma.$transaction(async (tx) => {
+      const reservation = await tx.reservation.update({
+        where: { id },
+        data: { status: 'CONFIRMED', paymentStatus: 'APPROVED' },
+      });
+      if (reservation.seatId) {
+        await tx.seat.update({
+          where: { id: reservation.seatId },
+          data: { status: 'SOLD' },
+        });
+      }
+      return reservation;
     });
   }
 

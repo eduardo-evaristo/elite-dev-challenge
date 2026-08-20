@@ -172,3 +172,58 @@ export interface MovieAggregatedDetail {
   duration: number;
   sessionsByLocation: MovieSessionsByLocation[];
 }
+
+export interface CreateReservationRequest {
+  eventId: string;
+  seatId?: string;
+  ticketTypeId?: string;
+}
+
+export interface ReservationResponse {
+  id: string;
+  eventId: string;
+  userId: string;
+  seatId: string | null;
+  ticketTypeId: string | null;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+  createdAt: string;
+}
+
+export interface PayReservationRequest {
+  cardNumber: string;
+}
+
+export interface PaymentApprovedResponse {
+  id: string;
+  reservationId: string;
+  userId: string;
+  event: {
+    id: string;
+    name: string;
+    date: string;
+    location: string;
+  };
+  seat: {
+    id: string;
+    row: string;
+    number: number;
+  } | null;
+  ticketType: {
+    id: string;
+    name: string;
+  } | null;
+  used: boolean;
+  usedAt: string | null;
+  createdAt: string;
+  signature: string;
+  qrContent: string;
+}
+
+export interface PaymentDeclinedResponse {
+  status: 'DECLINED';
+  message: string;
+}
+
+export type PaymentResultResponse =
+  | PaymentApprovedResponse
+  | PaymentDeclinedResponse;

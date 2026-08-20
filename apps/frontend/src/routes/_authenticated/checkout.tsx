@@ -49,10 +49,7 @@ function CheckoutComponent() {
           ) : (
             <PaymentForm
               onBack={() => setStep(1)}
-              onPay={(cardNumber) => {
-                // Stage 2: payReservation per reservationId
-                console.log('pay', search.reservationIds, cardNumber);
-              }}
+              reservationIds={search.reservationIds}
             />
           )}
         </div>
