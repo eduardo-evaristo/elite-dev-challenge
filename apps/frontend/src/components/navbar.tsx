@@ -23,11 +23,18 @@ const organizerLinks = [
   { label: 'Relatórios', href: '#' },
 ];
 
+const gateLinks: { label: string; href: string }[] = [];
+
 export function Navbar() {
   const { data: user } = useGetMe();
   const role = user?.role ?? null;
 
-  const links = role === 'ORGANIZER' ? organizerLinks : clientLinks;
+  const links =
+    role === 'ORGANIZER'
+      ? organizerLinks
+      : role === 'GATE'
+        ? gateLinks
+        : clientLinks;
   const searchPlaceholder =
     role === 'ORGANIZER' ? 'Buscar...' : 'Buscar eventos, filmes...';
 

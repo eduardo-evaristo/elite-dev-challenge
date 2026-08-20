@@ -25,6 +25,13 @@ export class TicketsRepository {
     return this.prisma.ticket.findUnique({ where: { id }, include });
   }
 
+  findByShortId(
+    shortId: string,
+    include?: TicketInclude,
+  ): Promise<TicketModel | null> {
+    return this.prisma.ticket.findUnique({ where: { shortId }, include });
+  }
+
   findManyByUser(
     userId: string,
     params: { skip: number; take: number; include?: TicketInclude },

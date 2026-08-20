@@ -192,8 +192,10 @@ model Ticket {
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
-  signature String // HMAC-SHA256(payload, TICKET_SECRET)
-  usedAt    DateTime? // null = ainda não validado na portaria
+  signature  String // HMAC-SHA256(payload, TICKET_SECRET)
+  shortId    String @unique // 8 chars, lookup direto para entrada manual
+  manualCode String // 8 chars, verificação para entrada manual (não unique)
+  usedAt     DateTime? // null = ainda não validado na portaria
 
   createdAt DateTime @default(now())
 

@@ -11,6 +11,9 @@ export const Route = createFileRoute('/_authenticated')({
         search: { redirect: location.href },
       });
     }
+    if (user.role === 'GATE' && !location.pathname.startsWith('/portaria')) {
+      throw redirect({ to: '/portaria' });
+    }
   },
   component: () => <Outlet />,
 });

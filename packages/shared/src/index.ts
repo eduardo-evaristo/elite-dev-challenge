@@ -217,11 +217,13 @@ export interface PaymentApprovedResponse {
   createdAt: string;
   signature: string;
   qrContent: string;
+  shortId: string;
+  manualCode: string;
 }
 
 export type PublicTicketResponse = Omit<
   PaymentApprovedResponse,
-  'signature' | 'qrContent'
+  'signature' | 'qrContent' | 'shortId' | 'manualCode'
 >;
 
 export interface PaymentDeclinedResponse {
@@ -232,3 +234,16 @@ export interface PaymentDeclinedResponse {
 export type PaymentResultResponse =
   | PaymentApprovedResponse
   | PaymentDeclinedResponse;
+
+export interface ValidateTicketRequest {
+  publicId?: string;
+  signature?: string;
+  manualEntryCode?: string;
+  expectedEventId?: string;
+}
+
+export type ValidateTicketResponse =
+  | { status: 'VALID'; holderName: string; ticketLabel: string }
+  | { status: 'ALREADY_USED'; holderName: string; usedAt: string }
+  | { status: 'INVALID' }
+  | { status: 'WRONG_EVENT'; ticketEventName: string };

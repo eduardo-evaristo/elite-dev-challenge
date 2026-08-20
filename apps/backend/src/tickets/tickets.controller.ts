@@ -8,6 +8,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import { TicketsService } from './tickets.service';
 import { ValidateTicketDto } from './dto/validate-ticket.dto';
 import { QueryMyTicketsDto } from './dto/query-my-tickets.dto';
@@ -51,7 +52,8 @@ export class TicketsController {
 
   // Different verb, no ordering conflict with :publicId.
   @Post('validate')
-  @UseGuards(JwtGuard, RolesGuard)
+  @UseGuards(JwtGuard, RolesGuard, ThrottlerGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Roles(Role.GATE, Role.ADMIN)
   validate(@Body() dto: ValidateTicketDto) {
     return this.ticketsService.validate(dto);

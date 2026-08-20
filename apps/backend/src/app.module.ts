@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { CatalogModule } from './catalog/catalog.module';
@@ -14,6 +15,7 @@ import { TicketsModule } from './tickets/tickets.module';
       envFilePath: ['.env.production', '.env', '.env.development'],
       isGlobal: true,
     }),
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 10 }]),
     UsersModule,
     AuthModule,
     CatalogModule,

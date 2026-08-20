@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { ExactlyOneOf } from './exactly-one-of.validator';
+import { ExactlyOneOf } from 'src/common/validators/exactly-one-of.validator';
 
 export class CreateReservationDto {
   @ExactlyOneOf(['seatId', 'ticketTypeId'], {

@@ -128,6 +128,16 @@ export function TicketDetailCard({
                 marginSize={0}
               />
             </div>
+
+            <div className='my-1 h-px bg-line' />
+
+            <p className='text-center text-[13px] text-muted-foreground'>
+              Código para entrada manual
+            </p>
+            <p className='text-center font-mono text-[18px] font-semibold tracking-[0.15em] text-ink'>
+              {(ticket as PaymentApprovedResponse).shortId}-
+              {(ticket as PaymentApprovedResponse).manualCode}
+            </p>
           </>
         )}
 

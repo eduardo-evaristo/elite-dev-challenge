@@ -22,4 +22,8 @@ export class QueryEventsDto {
   @IsOptional()
   @IsIn(['movie', 'show'])
   type?: 'movie' | 'show';
+
+  @IsOptional()
+  @IsString()
+  date?: string;
 }

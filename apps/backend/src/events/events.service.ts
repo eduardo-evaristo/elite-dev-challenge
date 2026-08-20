@@ -72,12 +72,23 @@ export class EventsService {
     const size = query.size;
     const skip = (page - 1) * size;
 
+    let dateFilter = {};
+    if (query.date) {
+      const target = query.date === 'today' ? new Date() : new Date(query.date);
+      const startOfDay = new Date(target);
+      startOfDay.setHours(0, 0, 0, 0);
+      const startOfNextDay = new Date(startOfDay);
+      startOfNextDay.setDate(startOfNextDay.getDate() + 1);
+      dateFilter = { date: { gte: startOfDay, lt: startOfNextDay } };
+    }
+
     const where = {
       status: 'PUBLISHED' as const,
       ...(query.type && { type: TYPE_MAP[query.type] }),
       ...(query.query && {
         name: { contains: query.query, mode: 'insensitive' as const },
       }),
+      ...dateFilter,
     };
 
     const [items, totalResults] = await Promise.all([

@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import {
   createFileRoute,
+  redirect,
   useNavigate,
   useRouter,
 } from '@tanstack/react-router';
@@ -19,9 +20,16 @@ import {
   eventsInfiniteListOptions,
   moviesInfiniteListOptions,
 } from '@/features/events/queries';
+import { meQueryOptions } from '@/features/auth/queries';
 import { formatDuration, formatEventDate } from '@/lib/datetime';
 
 export const Route = createFileRoute('/')({
+  beforeLoad: async ({ context }) => {
+    const user = await context.queryClient.ensureQueryData(meQueryOptions);
+    if (user?.role === 'GATE') {
+      throw redirect({ to: '/portaria' });
+    }
+  },
   loader: async ({ context }) => {
     await Promise.all([
       context.queryClient.ensureInfiniteQueryData(moviesInfiniteListOptions()),

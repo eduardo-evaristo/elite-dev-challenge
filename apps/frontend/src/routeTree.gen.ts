@@ -15,11 +15,13 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedMeusIngressosRouteImport } from './routes/_authenticated/meus-ingressos'
+import { Route as AuthenticatedPortariaRouteImport } from './routes/_authenticated/portaria'
 import { Route as EventosIdRouteImport } from './routes/eventos/$id'
 import { Route as FilmesExternalIdRouteImport } from './routes/filmes/$externalId'
 import { Route as IngressosPublicIdRouteImport } from './routes/ingressos_.$publicId'
 import { Route as AuthenticatedMeusIngressosIdRouteImport } from './routes/_authenticated/meus-ingressos_.$id'
 import { Route as AuthenticatedOrganizadorEventosNovoRouteImport } from './routes/_authenticated/organizador/eventos/novo'
+import { Route as AuthenticatedPortariaEventIdValidarRouteImport } from './routes/_authenticated/portaria.$eventId.validar'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -51,6 +53,11 @@ const AuthenticatedMeusIngressosRoute =
     path: '/meus-ingressos',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedPortariaRoute = AuthenticatedPortariaRouteImport.update({
+  id: '/portaria',
+  path: '/portaria',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const EventosIdRoute = EventosIdRouteImport.update({
   id: '/eventos/$id',
   path: '/eventos/$id',
@@ -78,6 +85,12 @@ const AuthenticatedOrganizadorEventosNovoRoute =
     path: '/organizador/eventos/novo',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedPortariaEventIdValidarRoute =
+  AuthenticatedPortariaEventIdValidarRouteImport.update({
+    id: '/$eventId/validar',
+    path: '/$eventId/validar',
+    getParentRoute: () => AuthenticatedPortariaRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -85,11 +98,13 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/meus-ingressos': typeof AuthenticatedMeusIngressosRoute
+  '/portaria': typeof AuthenticatedPortariaRouteWithChildren
   '/eventos/$id': typeof EventosIdRoute
   '/filmes/$externalId': typeof FilmesExternalIdRoute
   '/ingressos/$publicId': typeof IngressosPublicIdRoute
   '/meus-ingressos/$id': typeof AuthenticatedMeusIngressosIdRoute
   '/organizador/eventos/novo': typeof AuthenticatedOrganizadorEventosNovoRoute
+  '/portaria/$eventId/validar': typeof AuthenticatedPortariaEventIdValidarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -97,11 +112,13 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/meus-ingressos': typeof AuthenticatedMeusIngressosRoute
+  '/portaria': typeof AuthenticatedPortariaRouteWithChildren
   '/eventos/$id': typeof EventosIdRoute
   '/filmes/$externalId': typeof FilmesExternalIdRoute
   '/ingressos/$publicId': typeof IngressosPublicIdRoute
   '/meus-ingressos/$id': typeof AuthenticatedMeusIngressosIdRoute
   '/organizador/eventos/novo': typeof AuthenticatedOrganizadorEventosNovoRoute
+  '/portaria/$eventId/validar': typeof AuthenticatedPortariaEventIdValidarRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -111,11 +128,13 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/meus-ingressos': typeof AuthenticatedMeusIngressosRoute
+  '/_authenticated/portaria': typeof AuthenticatedPortariaRouteWithChildren
   '/eventos/$id': typeof EventosIdRoute
   '/filmes/$externalId': typeof FilmesExternalIdRoute
   '/ingressos_/$publicId': typeof IngressosPublicIdRoute
   '/_authenticated/meus-ingressos_/$id': typeof AuthenticatedMeusIngressosIdRoute
   '/_authenticated/organizador/eventos/novo': typeof AuthenticatedOrganizadorEventosNovoRoute
+  '/_authenticated/portaria/$eventId/validar': typeof AuthenticatedPortariaEventIdValidarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -125,11 +144,13 @@ export interface FileRouteTypes {
     | '/register'
     | '/checkout'
     | '/meus-ingressos'
+    | '/portaria'
     | '/eventos/$id'
     | '/filmes/$externalId'
     | '/ingressos/$publicId'
     | '/meus-ingressos/$id'
     | '/organizador/eventos/novo'
+    | '/portaria/$eventId/validar'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -137,11 +158,13 @@ export interface FileRouteTypes {
     | '/register'
     | '/checkout'
     | '/meus-ingressos'
+    | '/portaria'
     | '/eventos/$id'
     | '/filmes/$externalId'
     | '/ingressos/$publicId'
     | '/meus-ingressos/$id'
     | '/organizador/eventos/novo'
+    | '/portaria/$eventId/validar'
   id:
     | '__root__'
     | '/'
@@ -150,11 +173,13 @@ export interface FileRouteTypes {
     | '/register'
     | '/_authenticated/checkout'
     | '/_authenticated/meus-ingressos'
+    | '/_authenticated/portaria'
     | '/eventos/$id'
     | '/filmes/$externalId'
     | '/ingressos_/$publicId'
     | '/_authenticated/meus-ingressos_/$id'
     | '/_authenticated/organizador/eventos/novo'
+    | '/_authenticated/portaria/$eventId/validar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -211,6 +236,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMeusIngressosRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/portaria': {
+      id: '/_authenticated/portaria'
+      path: '/portaria'
+      fullPath: '/portaria'
+      preLoaderRoute: typeof AuthenticatedPortariaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/eventos/$id': {
       id: '/eventos/$id'
       path: '/eventos/$id'
@@ -246,12 +278,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOrganizadorEventosNovoRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/portaria/$eventId/validar': {
+      id: '/_authenticated/portaria/$eventId/validar'
+      path: '/$eventId/validar'
+      fullPath: '/portaria/$eventId/validar'
+      preLoaderRoute: typeof AuthenticatedPortariaEventIdValidarRouteImport
+      parentRoute: typeof AuthenticatedPortariaRoute
+    }
   }
 }
+
+interface AuthenticatedPortariaRouteChildren {
+  AuthenticatedPortariaEventIdValidarRoute: typeof AuthenticatedPortariaEventIdValidarRoute
+}
+
+const AuthenticatedPortariaRouteChildren: AuthenticatedPortariaRouteChildren = {
+  AuthenticatedPortariaEventIdValidarRoute:
+    AuthenticatedPortariaEventIdValidarRoute,
+}
+
+const AuthenticatedPortariaRouteWithChildren =
+  AuthenticatedPortariaRoute._addFileChildren(
+    AuthenticatedPortariaRouteChildren,
+  )
 
 interface AuthenticatedRouteChildren {
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
   AuthenticatedMeusIngressosRoute: typeof AuthenticatedMeusIngressosRoute
+  AuthenticatedPortariaRoute: typeof AuthenticatedPortariaRouteWithChildren
   AuthenticatedMeusIngressosIdRoute: typeof AuthenticatedMeusIngressosIdRoute
   AuthenticatedOrganizadorEventosNovoRoute: typeof AuthenticatedOrganizadorEventosNovoRoute
 }
@@ -259,6 +313,7 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
   AuthenticatedMeusIngressosRoute: AuthenticatedMeusIngressosRoute,
+  AuthenticatedPortariaRoute: AuthenticatedPortariaRouteWithChildren,
   AuthenticatedMeusIngressosIdRoute: AuthenticatedMeusIngressosIdRoute,
   AuthenticatedOrganizadorEventosNovoRoute:
     AuthenticatedOrganizadorEventosNovoRoute,

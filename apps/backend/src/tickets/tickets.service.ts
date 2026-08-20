@@ -1,6 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createHmac, randomUUID, timingSafeEqual } from 'crypto';
+import { createHmac, randomInt, randomUUID, timingSafeEqual } from 'crypto';
 import { TicketsRepository } from './tickets.repository';
 import { ValidateTicketDto } from './dto/validate-ticket.dto';
 import { QueryMyTicketsDto } from './dto/query-my-tickets.dto';
@@ -9,6 +13,19 @@ import type { TicketInclude, TicketModel } from '../generated/prisma/models';
 const TICKET_INCLUDE: TicketInclude = {
   reservation: { include: { event: true, seat: true, ticketType: true } },
 };
+
+const VALIDATE_INCLUDE: TicketInclude = {
+  reservation: { include: { event: true, seat: true, ticketType: true } },
+  user: { select: { name: true, lastName: true } },
+};
+
+const UNAMBIGUOUS_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+
+type ValidateTicketResponse =
+  | { status: 'VALID'; holderName: string; ticketLabel: string }
+  | { status: 'ALREADY_USED'; holderName: string; usedAt: string }
+  | { status: 'INVALID' }
+  | { status: 'WRONG_EVENT'; ticketEventName: string };
 
 interface EventData {
   id: string;
@@ -28,6 +45,11 @@ interface TicketTypeData {
   name: string;
 }
 
+interface UserData {
+  name: string;
+  lastName: string;
+}
+
 interface ReservationData {
   eventId: string;
   event: EventData;
@@ -40,16 +62,13 @@ interface TicketData {
   reservationId: string;
   userId: string;
   signature: string;
+  shortId: string;
+  manualCode: string;
   usedAt: Date | null;
   createdAt: Date;
   reservation: ReservationData;
+  user: UserData;
 }
-
-type ValidateStatus =
-  | { status: 'VALID' }
-  | { status: 'INVALID' }
-  | { status: 'ALREADY_USED' }
-  | { status: 'WRONG_EVENT' };
 
 @Injectable()
 export class TicketsService {
@@ -62,7 +81,6 @@ export class TicketsService {
     this.ticketSecret = this.configService.getOrThrow<string>('TICKET_SECRET');
   }
 
-  // Called by ReservationsService when paymentStatus = APPROVED (next step).
   async issueForReservation(reservationId: string) {
     const reservation =
       await this.ticketsRepository.findReservationWithEvent(reservationId);
@@ -71,12 +89,16 @@ export class TicketsService {
     }
     const id = randomUUID();
     const signature = this.signTicket(id, reservation.eventId);
+    const shortId = this.generateCode(8);
+    const manualCode = this.generateCode(8);
     const ticket = await this.ticketsRepository.create(
       {
         id,
         reservation: { connect: { id: reservation.id } },
         user: { connect: { id: reservation.userId } },
         signature,
+        shortId,
+        manualCode,
       },
       TICKET_INCLUDE,
     );
@@ -107,7 +129,6 @@ export class TicketsService {
       publicId,
       TICKET_INCLUDE,
     );
-    // 404 for both not-found and not-owned — never reveal existence.
     if (!ticket) throw new NotFoundException();
     if (ticket.userId !== userId) throw new NotFoundException();
     return this.toResponse(ticket, { withQr: true });
@@ -122,32 +143,77 @@ export class TicketsService {
     return this.toPublicResponse(ticket);
   }
 
-  async validate(dto: ValidateTicketDto): Promise<ValidateStatus> {
-    const ticket = await this.ticketsRepository.findByPublicId(
-      dto.publicId,
-      TICKET_INCLUDE,
-    );
-    // 1. Not found -> INVALID (does not reveal existence).
+  async validate(dto: ValidateTicketDto): Promise<ValidateTicketResponse> {
+    let ticket: TicketModel | null;
+
+    if (dto.signature) {
+      if (!dto.publicId) {
+        throw new BadRequestException(
+          'publicId is required when using signature',
+        );
+      }
+      ticket = await this.ticketsRepository.findByPublicId(
+        dto.publicId,
+        VALIDATE_INCLUDE,
+      );
+    } else {
+      const parts = dto.manualEntryCode!.split('-');
+      if (parts.length !== 2 || !parts[0] || !parts[1]) {
+        return { status: 'INVALID' };
+      }
+      ticket = await this.ticketsRepository.findByShortId(
+        parts[0],
+        VALIDATE_INCLUDE,
+      );
+    }
+
     if (!ticket) return { status: 'INVALID' };
 
     const data = ticket as unknown as TicketData;
     const eventId = data.reservation.eventId;
 
-    // 2. Wrong event expected -> WRONG_EVENT (cheap check before HMAC).
     if (dto.expectedEventId && dto.expectedEventId !== eventId) {
-      return { status: 'WRONG_EVENT' };
+      return {
+        status: 'WRONG_EVENT',
+        ticketEventName: data.reservation.event.name,
+      };
     }
 
-    // 3. Signature mismatch -> INVALID.
-    const expected = this.signTicket(ticket.id, eventId);
-    if (!this.safeEqualHex(expected, dto.signature)) {
-      return { status: 'INVALID' };
+    if (dto.signature) {
+      const expected = this.signTicket(ticket.id, eventId);
+      if (!this.safeEqualHex(expected, dto.signature)) {
+        return { status: 'INVALID' };
+      }
+    } else {
+      const manualCode = dto.manualEntryCode!.split('-')[1];
+      if (!this.safeEqualStr(data.manualCode, manualCode)) {
+        return { status: 'INVALID' };
+      }
     }
 
-    // 4. Atomic single-winner use-marking. count=0 -> already used.
     const { count } = await this.ticketsRepository.markUsed(ticket.id);
-    if (count === 0) return { status: 'ALREADY_USED' };
-    return { status: 'VALID' };
+    if (count === 0) {
+      return {
+        status: 'ALREADY_USED',
+        holderName: `${data.user.name} ${data.user.lastName}`,
+        usedAt: data.usedAt!.toISOString(),
+      };
+    }
+
+    const holderName = `${data.user.name} ${data.user.lastName}`;
+    const ticketLabel = data.reservation.seat
+      ? `Fila ${data.reservation.seat.row}, Assento ${data.reservation.seat.number}`
+      : (data.reservation.ticketType?.name ?? 'Ingresso');
+
+    return { status: 'VALID', holderName, ticketLabel };
+  }
+
+  private generateCode(length: number): string {
+    const chars: string[] = [];
+    for (let i = 0; i < length; i++) {
+      chars.push(UNAMBIGUOUS_ALPHABET[randomInt(UNAMBIGUOUS_ALPHABET.length)]);
+    }
+    return chars.join('');
   }
 
   private signTicket(ticketId: string, eventId: string): string {
@@ -156,9 +222,12 @@ export class TicketsService {
       .digest('hex');
   }
 
-  // timingSafeEqual throws on unequal-length buffers; length is not secret
-  // (signature is fixed-length hex), so a length guard leaks nothing.
   private safeEqualHex(a: string, b: string): boolean {
+    if (a.length !== b.length) return false;
+    return timingSafeEqual(Buffer.from(a), Buffer.from(b));
+  }
+
+  private safeEqualStr(a: string, b: string): boolean {
     if (a.length !== b.length) return false;
     return timingSafeEqual(Buffer.from(a), Buffer.from(b));
   }
@@ -174,11 +243,12 @@ export class TicketsService {
           ...base,
           signature: ticket.signature,
           qrContent: this.toQrContent(ticket.id, ticket.signature),
+          shortId: ticket.shortId,
+          manualCode: ticket.manualCode,
         }
       : base;
   }
 
-  // Public share view: metadata + `used` boolean, never signature/qrContent.
   private toPublicResponse(ticket: TicketModel) {
     const data = ticket as unknown as TicketData;
     return {
