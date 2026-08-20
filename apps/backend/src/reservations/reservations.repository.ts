@@ -44,4 +44,30 @@ export class ReservationsRepository {
       });
     });
   }
+
+  findByIdWithRelations(id: string) {
+    return this.prisma.reservation.findUnique({
+      where: { id },
+      include: {
+        ticketType: true,
+        seat: true,
+        event: { include: { ticketTypes: true } },
+        user: { select: { name: true, lastName: true, email: true } },
+      },
+    });
+  }
+
+  confirm(id: string) {
+    return this.prisma.reservation.update({
+      where: { id },
+      data: { status: 'CONFIRMED', paymentStatus: 'APPROVED' },
+    });
+  }
+
+  markDeclined(id: string) {
+    return this.prisma.reservation.update({
+      where: { id },
+      data: { paymentStatus: 'DECLINED' },
+    });
+  }
 }
