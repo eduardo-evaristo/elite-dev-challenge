@@ -1,4 +1,5 @@
 import { useState, useEffect, type ReactNode } from 'react';
+import { useSearch } from '@tanstack/react-router';
 import { Armchair, Ticket, Trash2, Plus } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -39,6 +40,10 @@ export function StepFormat({
   onSeatedConfigChange,
   onSectorsChange,
 }: StepFormatProps) {
+  const search = useSearch({ strict: false });
+  const type = search.type as 'movie' | 'show' | undefined;
+  const isMovie = type === 'movie';
+
   return (
     <>
       <h2 className='text-[22px] font-semibold text-ink'>Formato de venda</h2>
@@ -62,18 +67,20 @@ export function StepFormat({
             />
           )}
         </FormatCard>
-        <FormatCard
-          format='standing'
-          isSelected={format === 'standing'}
-          onSelect={onFormatChange}
-          Icon={Ticket}
-          title='Pista ou setores'
-          desc='Shows e eventos com setores de pista. Monte a lista de tipos de ingresso abaixo.'
-        >
-          {format === 'standing' && (
-            <StandingConfig sectors={sectors} onChange={onSectorsChange} />
-          )}
-        </FormatCard>
+        {!isMovie && (
+          <FormatCard
+            format='standing'
+            isSelected={format === 'standing'}
+            onSelect={onFormatChange}
+            Icon={Ticket}
+            title='Pista ou setores'
+            desc='Shows e eventos com setores de pista. Monte a lista de tipos de ingresso abaixo.'
+          >
+            {format === 'standing' && (
+              <StandingConfig sectors={sectors} onChange={onSectorsChange} />
+            )}
+          </FormatCard>
+        )}
       </div>
     </>
   );
