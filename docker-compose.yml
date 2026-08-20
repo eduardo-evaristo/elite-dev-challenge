@@ -1,0 +1,58 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: elite-dev-challenge-postgres
+    restart: unless-stopped
+    ports:
+      - "15432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: elite-dev-challenge
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: elite-dev-challenge-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/elite-dev-challenge"
+      JWT_SECRET: "yNFfqxuUnRLn3OtjHBAC5qYEkpseSpfF8hvHn41ILUE"
+      PORT: "3000"
+      NODE_ENV: "development"
+      CORS_ORIGINS: "http://localhost"
+      COOKIE_DOMAIN: ""
+      TMDB_ACCESS_TOKEN: ""
+      TMDB_BASE_URL: "https://api.themoviedb.org/3"
+      TMDB_IMAGE_BASE_URL: "https://image.themoviedb.org/t/p/w500"
+      TICKETMASTER_API_KEY: ""
+      TICKETMASTER_BASE_URL: "https://app.ticketmaster.com/discovery/v2"
+      PAYMENT_PROVIDER: "simulated"
+      TICKET_SECRET: "9f3c1a8e7b2d4f6a0c5e8b1d3f7a9c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+    container_name: elite-dev-challenge-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
