@@ -1,9 +1,12 @@
-import { useState, type FormEvent } from 'react';
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import { useRegister } from '@/features/auth/hooks/use-register';
+import { registerSchema, type RegisterFormData } from '@/features/auth/schemas';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export const Route = createFileRoute('/register')({
   component: RouteComponent,
@@ -11,92 +14,125 @@ export const Route = createFileRoute('/register')({
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
   const register = useRegister();
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    setErrorMsg(null);
-    register.mutate(
-      { name, lastName, email, password },
-      {
-        onSuccess: () => navigate({ to: '/' }),
-        onError: (error) => {
-          setErrorMsg('Erro ao cadastrar. Verifique os dados.');
-          console.error(error);
-        },
+  const form = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { name: '', lastName: '', email: '', password: '' },
+  });
+
+  const onSubmit = (data: RegisterFormData) => {
+    register.mutate(data, {
+      onSuccess: () => navigate({ to: '/' }),
+      onError: () => {
+        form.setError('root', {
+          message: 'Erro ao cadastrar. Verifique os dados.',
+        });
       },
-    );
+    });
   };
 
   return (
-    <div className='flex min-h-screen items-center justify-center bg-paper'>
-      <form
-        onSubmit={handleSubmit}
-        className='flex w-full max-w-sm flex-col gap-4 rounded-lg border border-line bg-surface p-8'
-      >
-        <h1 className='text-xl font-bold text-ink'>Criar conta</h1>
+    <div className='flex h-screen overflow-hidden bg-surface'>
+      <div className='hidden lg:block lg:w-[580px] lg:flex-shrink-0'>
+        <img
+          src='https://images.unsplash.com/photo-1488036106564-87ecb155bb15?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3ODcyMjg0ODd8&ixlib=rb-4.1.0&q=80&w=1080'
+          alt=''
+          className='h-full w-full rounded-md object-cover'
+        />
+      </div>
 
-        {errorMsg && <p className='text-sm text-red-500'>{errorMsg}</p>}
+      <div className='flex flex-1 items-center justify-center overflow-y-auto px-6 py-12 lg:px-16'>
+        <div className='flex w-full max-w-[420px] flex-col gap-8'>
+          <span className='text-[24px] font-bold text-ink'>guichê</span>
 
-        <label className='flex flex-col gap-1'>
-          <span className='text-sm font-medium text-muted-foreground'>
-            Nome
-          </span>
-          <Input
-            type='text'
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </label>
+          <h1 className='text-[28px] font-semibold text-ink'>Crie sua conta</h1>
 
-        <label className='flex flex-col gap-1'>
-          <span className='text-sm font-medium text-muted-foreground'>
-            Sobrenome
-          </span>
-          <Input
-            type='text'
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            required
-          />
-        </label>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className='flex flex-col gap-5'
+          >
+            {form.formState.errors.root && (
+              <p className='text-sm text-red-500'>
+                {form.formState.errors.root.message}
+              </p>
+            )}
 
-        <label className='flex flex-col gap-1'>
-          <span className='text-sm font-medium text-muted-foreground'>
-            Email
-          </span>
-          <Input
-            type='email'
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </label>
+            <div className='flex flex-col gap-4 sm:flex-row'>
+              <Label className='flex flex-1 flex-col gap-2'>
+                <span className='text-[13px] font-medium text-muted-ink'>
+                  Nome
+                </span>
+                <Input placeholder='João' {...form.register('name')} />
+                {form.formState.errors.name && (
+                  <span className='text-xs text-red-500'>
+                    {form.formState.errors.name.message}
+                  </span>
+                )}
+              </Label>
 
-        <label className='flex flex-col gap-1'>
-          <span className='text-sm font-medium text-muted-foreground'>
-            Senha
-          </span>
-          <Input
-            type='password'
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={8}
-          />
-        </label>
+              <Label className='flex flex-1 flex-col gap-2'>
+                <span className='text-[13px] font-medium text-muted-ink'>
+                  Sobrenome
+                </span>
+                <Input placeholder='Silva' {...form.register('lastName')} />
+                {form.formState.errors.lastName && (
+                  <span className='text-xs text-red-500'>
+                    {form.formState.errors.lastName.message}
+                  </span>
+                )}
+              </Label>
+            </div>
 
-        <Button type='submit' disabled={register.isPending}>
-          {register.isPending ? 'Cadastrando...' : 'Cadastrar'}
-        </Button>
-      </form>
+            <Label className='flex flex-col gap-2'>
+              <span className='text-[13px] font-medium text-muted-ink'>
+                Email
+              </span>
+              <Input
+                type='email'
+                placeholder='seu@email.com'
+                {...form.register('email')}
+              />
+              {form.formState.errors.email && (
+                <span className='text-xs text-red-500'>
+                  {form.formState.errors.email.message}
+                </span>
+              )}
+            </Label>
+
+            <Label className='flex flex-col gap-2'>
+              <span className='text-[13px] font-medium text-muted-ink'>
+                Senha
+              </span>
+              <Input
+                type='password'
+                placeholder='••••••••'
+                {...form.register('password')}
+              />
+              {form.formState.errors.password && (
+                <span className='text-xs text-red-500'>
+                  {form.formState.errors.password.message}
+                </span>
+              )}
+            </Label>
+
+            <Button
+              type='submit'
+              disabled={register.isPending}
+              className='h-12 w-full rounded-md bg-curtain text-[15px] font-semibold text-white hover:bg-curtain-hover'
+            >
+              {register.isPending ? 'Cadastrando...' : 'Criar conta'}
+            </Button>
+          </form>
+
+          <Link
+            to='/login'
+            className='text-center text-[14px] text-curtain hover:underline'
+          >
+            Já tem conta? Entre
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
