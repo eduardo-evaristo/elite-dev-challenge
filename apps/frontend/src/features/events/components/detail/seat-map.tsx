@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 
 interface SeatMapProps {
   seats: SeatResponse[];
-  selectedIds: Set<string>;
+  selectedIds: string | null;
   onToggleSeat: (seatId: string) => void;
 }
 
@@ -48,7 +48,7 @@ export function SeatMap({ seats, selectedIds, onToggleSeat }: SeatMapProps) {
             </span>
             <div className='flex gap-1'>
               {row.seats.map((seat) => {
-                const isSelected = selectedIds.has(seat.id);
+                const isSelected = selectedIds === seat.id;
                 const isSold = seat.status === 'SOLD';
                 const isReserved = seat.status === 'RESERVED';
                 const isUnavailable = isSold || isReserved;

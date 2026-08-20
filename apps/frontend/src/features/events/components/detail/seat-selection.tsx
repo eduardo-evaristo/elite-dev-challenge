@@ -28,25 +28,17 @@ export function SeatSelection({
   const navigate = useNavigate();
   const { data: user } = useGetMe();
   const createReservation = useCreateReservation();
-  const [selectedSeatIds, setSelectedSeatIds] = useState<Set<string>>(
-    new Set(),
-  );
+  const [selectedSeatId, setSelectedSeatId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const toggleSeat = (seatId: string) => {
     setError(null);
-    setSelectedSeatIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(seatId)) {
-        next.delete(seatId);
-      } else {
-        next.add(seatId);
-      }
-      return next;
-    });
+    setSelectedSeatId((prev) => (prev === seatId ? null : seatId));
   };
 
-  const selectedSeats = seats.filter((s) => selectedSeatIds.has(s.id));
+  const selectedSeats = selectedSeatId
+    ? seats.filter((s) => s.id === selectedSeatId)
+    : [];
   const subtotal = selectedSeats.length * price;
   const hasSelection = selectedSeats.length > 0;
   const isReserving = createReservation.isPending;
@@ -63,24 +55,21 @@ export function SeatSelection({
     if (!hasSelection || isReserving) return;
 
     setError(null);
-    const seatIdList = [...selectedSeatIds];
     const reservationIds: string[] = [];
 
-    for (const seatId of seatIdList) {
-      try {
-        const res = await createReservation.mutateAsync({
-          eventId,
-          seatId,
-        });
-        reservationIds.push(res.id);
-      } catch (err) {
-        if (isAxiosError(err) && err.response?.status === 409) {
-          setError('Este assento acabou de ser reservado por outra pessoa.');
-          return;
-        }
-        setError('Erro ao reservar assentos. Tente novamente.');
+    try {
+      const res = await createReservation.mutateAsync({
+        eventId,
+        seatId: selectedSeatId!,
+      });
+      reservationIds.push(res.id);
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 409) {
+        setError('Este assento acabou de ser reservado por outra pessoa.');
         return;
       }
+      setError('Erro ao reservar assentos. Tente novamente.');
+      return;
     }
 
     navigate({
@@ -88,7 +77,7 @@ export function SeatSelection({
       search: {
         eventId,
         mode: 'seat',
-        seatIds: seatIdList,
+        seatIds: [selectedSeatId!],
         price,
         reservationIds,
       },
@@ -180,7 +169,7 @@ export function SeatSelection({
         <div className='flex items-start justify-center'>
           <SeatMap
             seats={seats}
-            selectedIds={selectedSeatIds}
+            selectedIds={selectedSeatId}
             onToggleSeat={toggleSeat}
           />
         </div>
