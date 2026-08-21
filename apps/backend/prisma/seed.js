@@ -8,29 +8,22 @@ const users = [
     name: 'Cliente',
     lastName: 'Teste',
     email: 'cliente@test.com',
-    password: '123456',
+    password: '12345678',
     role: 'CLIENT',
   },
   {
     name: 'Organizador',
     lastName: 'Teste',
     email: 'organizador@test.com',
-    password: '123456',
+    password: '12345678',
     role: 'ORGANIZER',
   },
   {
     name: 'Portaria',
     lastName: 'Teste',
     email: 'portaria@test.com',
-    password: '123456',
+    password: '12345678',
     role: 'GATE',
-  },
-  {
-    name: 'Admin',
-    lastName: 'Teste',
-    email: 'admin@test.com',
-    password: '123456',
-    role: 'ADMIN',
   },
 ];
 

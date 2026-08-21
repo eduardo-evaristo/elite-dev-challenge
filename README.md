@@ -123,16 +123,26 @@ Consulte os arquivos `.env.example` em cada app:
 
 ## Usuários de Teste
 
-O seed cria automaticamente 4 usuários (um por role) ao iniciar o backend:
+O seed cria automaticamente 3 usuários (um por role) ao iniciar o backend:
 
 | Role | Email | Senha | Uso |
 |------|-------|-------|-----|
-| CLIENT | `cliente@test.com` | `123456` | Navegar, comprar ingressos |
-| ORGANIZER | `organizador@test.com` | `123456` | Criar e gerenciar eventos |
-| GATE | `portaria@test.com` | `123456` | Validar ingressos na entrada |
-| ADMIN | `admin@test.com` | `123456` | Acesso total |
+| CLIENT | `cliente@test.com` | `12345678` | Navegar, comprar ingressos |
+| ORGANIZER | `organizador@test.com` | `12345678` | Criar e gerenciar eventos |
+| GATE | `portaria@test.com` | `12345678` | Validar ingressos na entrada |
 
 > **Para rodar o seed manualmente:** `npm run seed` (na raiz) ou `npm run seed --workspace=apps/backend`
+
+---
+
+## Pagamento (Simulado)
+
+O pagamento é **simulado** — nenhum cartão real é processado. A aprovação depende do último dígito do número do cartão:
+
+| Último dígito | Resultado |
+|---------------|-----------|
+| Par (0, 2, 4, 6, 8) | `APPROVED` |
+| Ímpar (1, 3, 5, 7, 9) | `DECLINED` |
 
 ---
 
