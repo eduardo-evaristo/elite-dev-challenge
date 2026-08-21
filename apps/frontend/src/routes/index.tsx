@@ -5,6 +5,7 @@ import {
   useNavigate,
   useRouter,
 } from '@tanstack/react-router';
+import { CalendarX, Music } from 'lucide-react';
 
 import { Navbar } from '@/components/navbar';
 import { Hero } from '@/features/home/components/hero';
@@ -110,27 +111,39 @@ function RouteComponent() {
           onPrev={() => scrollMovies(-1)}
           onNext={() => scrollMovies(1)}
         />
-        <div
-          ref={moviesRef}
-          className='flex gap-4 overflow-x-auto scrollbar-none'
-        >
-          {movies.map((item) => (
-            <div
-              key={item.externalId}
-              onMouseEnter={() => preloadMovie(item.externalId)}
-              onFocus={() => preloadMovie(item.externalId)}
-            >
-              <MovieCard
-                title={item.name}
-                meta={formatDuration(item.duration)}
-                classification={item.eventClassification}
-                posterUrl={item.imageUrl}
-                onClick={() => goMovie(item.externalId)}
-              />
-            </div>
-          ))}
-          <div ref={moviesSentinelRef} className='h-1 w-1 shrink-0' />
-        </div>
+        {movies.length === 0 && !moviesQuery.isLoading ? (
+          <div className='flex h-[280px] flex-col items-center justify-center gap-4'>
+            <Music className='size-12 text-line-strong' />
+            <p className='text-lg font-semibold text-ink'>
+              Nenhum filme em cartaz
+            </p>
+            <p className='text-sm text-muted-foreground'>
+              Volte em breve para conferir novas atrações
+            </p>
+          </div>
+        ) : (
+          <div
+            ref={moviesRef}
+            className='flex gap-4 overflow-x-auto scrollbar-none'
+          >
+            {movies.map((item) => (
+              <div
+                key={item.externalId}
+                onMouseEnter={() => preloadMovie(item.externalId)}
+                onFocus={() => preloadMovie(item.externalId)}
+              >
+                <MovieCard
+                  title={item.name}
+                  meta={formatDuration(item.duration)}
+                  classification={item.eventClassification}
+                  posterUrl={item.imageUrl}
+                  onClick={() => goMovie(item.externalId)}
+                />
+              </div>
+            ))}
+            <div ref={moviesSentinelRef} className='h-1 w-1 shrink-0' />
+          </div>
+        )}
       </section>
 
       <section className='flex flex-col gap-4 px-4 py-8 md:gap-6 md:px-20 md:py-12'>
@@ -139,28 +152,40 @@ function RouteComponent() {
           onPrev={() => scrollEvents(-1)}
           onNext={() => scrollEvents(1)}
         />
-        <div
-          ref={eventsRef}
-          className='flex gap-4 overflow-x-auto scrollbar-none'
-        >
-          {shows.map((item) => (
-            <div
-              key={item.id}
-              onMouseEnter={() => preloadEvent(item.id)}
-              onFocus={() => preloadEvent(item.id)}
-            >
-              <EventCard
-                title={item.name}
-                date={formatEventDate(item.date)}
-                venue={item.location}
-                classification={item.eventClassification}
-                posterUrl={item.imageUrl}
-                onClick={() => goEvent(item.id)}
-              />
-            </div>
-          ))}
-          <div ref={eventsSentinelRef} className='h-1 w-1 shrink-0' />
-        </div>
+        {shows.length === 0 && !showsQuery.isLoading ? (
+          <div className='flex h-[280px] flex-col items-center justify-center gap-4'>
+            <CalendarX className='size-12 text-line-strong' />
+            <p className='text-lg font-semibold text-ink'>
+              Nenhum evento em cartaz
+            </p>
+            <p className='text-sm text-muted-foreground'>
+              Volte em breve para conferir novas atrações
+            </p>
+          </div>
+        ) : (
+          <div
+            ref={eventsRef}
+            className='flex gap-4 overflow-x-auto scrollbar-none'
+          >
+            {shows.map((item) => (
+              <div
+                key={item.id}
+                onMouseEnter={() => preloadEvent(item.id)}
+                onFocus={() => preloadEvent(item.id)}
+              >
+                <EventCard
+                  title={item.name}
+                  date={formatEventDate(item.date)}
+                  venue={item.location}
+                  classification={item.eventClassification}
+                  posterUrl={item.imageUrl}
+                  onClick={() => goEvent(item.id)}
+                />
+              </div>
+            ))}
+            <div ref={eventsSentinelRef} className='h-1 w-1 shrink-0' />
+          </div>
+        )}
       </section>
 
       <Footer />
