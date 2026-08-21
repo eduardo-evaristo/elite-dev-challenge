@@ -9,7 +9,7 @@ export function useRegister() {
   return useMutation({
     mutationFn: (data: RegisterRequest) => register(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['me'] });
+      queryClient.removeQueries({ queryKey: ['me'] });
     },
   });
 }

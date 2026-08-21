@@ -9,7 +9,7 @@ export function useLogin() {
   return useMutation({
     mutationFn: (data: LoginRequest) => login(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['me'] });
+      queryClient.removeQueries({ queryKey: ['me'] });
     },
   });
 }
