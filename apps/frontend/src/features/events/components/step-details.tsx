@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { formatDuration } from '@/lib/datetime';
 import { maskCurrency } from '@/lib/masks';
+import { DatePicker } from '@/components/ui/date-picker';
 
 interface StepDetailsProps {
   type: 'movie' | 'show';
@@ -104,11 +105,9 @@ export function StepDetails({
         <div className='flex flex-col gap-3 md:flex-row md:gap-5'>
           <label className='flex flex-1 flex-col gap-2'>
             <span className='text-[13px] font-semibold text-ink'>Data</span>
-            <input
-              type='date'
-              value={date ?? ''}
-              onChange={(e) => onFieldChange('date', e.target.value)}
-              className={inputClass}
+            <DatePicker
+              value={date}
+              onValueChange={(value) => onFieldChange('date', value)}
             />
           </label>
           <label className='flex flex-1 flex-col gap-2'>
