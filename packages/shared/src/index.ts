@@ -1,3 +1,37 @@
+export type Role = 'CLIENT' | 'ORGANIZER' | 'GATE' | 'ADMIN';
+
+export interface UserListItem {
+  id: string;
+  name: string;
+  lastName: string;
+  email: string;
+  role: Role;
+  createdAt: string;
+}
+
+export interface PaginatedUserResult {
+  items: UserListItem[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+}
+
+export interface QueryUsersParams {
+  page?: number;
+  size?: number;
+  query?: string;
+  role?: Role;
+}
+
+export interface CreateUserByAdminRequest {
+  name: string;
+  lastName: string;
+  email: string;
+  password: string;
+  role: Role;
+}
+
 export type CatalogType = 'movie' | 'show';
 
 export type ExternalSource = 'TMDB' | 'TICKETMASTER';

@@ -21,7 +21,7 @@ function formatEventMeta(date: string, location: string): string {
 }
 
 export const Route = createFileRoute(
-  '/_authenticated/portaria/$eventId/validar',
+  '/_authenticated/portaria_/$eventId/validar',
 )({
   beforeLoad: async ({ context }) => {
     const user = await context.queryClient.ensureQueryData(meQueryOptions);

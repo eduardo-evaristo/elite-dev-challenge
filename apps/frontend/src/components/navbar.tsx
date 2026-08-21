@@ -32,7 +32,9 @@ export function Navbar() {
             <Menu className='size-5' />
           </button>
 
-          <Link to='/' className='text-[22px] font-bold text-ink'>guichê</Link>
+          <Link to='/' className='text-[22px] font-bold text-ink'>
+            guichê
+          </Link>
         </div>
 
         <div className='flex items-center gap-3'>
@@ -57,6 +59,18 @@ export function Navbar() {
               )}
             >
               Meus eventos
+            </Link>
+          )}
+
+          {role === 'ADMIN' && (
+            <Link
+              to='/admin/usuarios'
+              className={cn(
+                'hidden rounded-md bg-curtain px-4 py-2 text-sm font-semibold text-white md:block',
+                'transition-colors hover:bg-curtain-hover',
+              )}
+            >
+              Painel do Administrador
             </Link>
           )}
 
@@ -146,6 +160,19 @@ export function Navbar() {
                 onClick={() => setDrawerOpen(false)}
               >
                 Meus eventos
+              </Link>
+            )}
+
+            {role === 'ADMIN' && (
+              <Link
+                to='/admin/usuarios'
+                className={cn(
+                  'mb-4 block rounded-md bg-curtain px-4 py-2 text-center text-sm font-semibold text-white',
+                  'transition-colors hover:bg-curtain-hover',
+                )}
+                onClick={() => setDrawerOpen(false)}
+              >
+                Painel do Administrador
               </Link>
             )}
 
