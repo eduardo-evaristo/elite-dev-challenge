@@ -10,6 +10,7 @@ import { formatCurrency } from '@/lib/currency';
 import { toastError } from '@/lib/toast';
 import { cn } from '@/lib/utils';
 import { SeatMap } from './seat-map';
+import { OrgNotice } from './org-notice';
 
 interface SeatSelectionProps {
   eventId: string;
@@ -41,6 +42,7 @@ export function SeatSelection({
   const subtotal = selectedSeats.length * price;
   const hasSelection = selectedSeats.length > 0;
   const isReserving = createReservation.isPending;
+  const isClient = user?.role === 'CLIENT';
 
   const handleBuyClick = async () => {
     if (!user) {
@@ -87,11 +89,17 @@ export function SeatSelection({
 
   const buttonLabel = !user
     ? 'Faça login para comprar'
-    : isReserving
-      ? 'Reservando...'
-      : 'Comprar ingressos';
+    : !isClient
+      ? 'Compra indisponível'
+      : isReserving
+        ? 'Reservando...'
+        : 'Comprar ingressos';
 
-  const buttonDisabled = !user ? false : !hasSelection || isReserving;
+  const buttonDisabled = !user
+    ? false
+    : !isClient
+      ? true
+      : !hasSelection || isReserving;
 
   return (
     <section className='flex flex-col gap-12 bg-paper px-5 py-12 md:flex-row md:px-20'>
@@ -151,14 +159,18 @@ export function SeatSelection({
           disabled={buttonDisabled}
           onClick={handleBuyClick}
           className={cn(
-            'w-fit rounded-md px-8 py-4 text-base font-semibold text-white transition-colors',
-            buttonDisabled && !isReserving
-              ? 'cursor-not-allowed bg-line'
-              : 'bg-curtain hover:bg-curtain-hover',
+            'w-fit rounded-md px-8 py-4 text-base font-semibold transition-colors',
+            !isClient
+              ? 'cursor-not-allowed bg-line text-muted-foreground'
+              : buttonDisabled && !isReserving
+                ? 'cursor-not-allowed bg-line text-white'
+                : 'bg-curtain text-white hover:bg-curtain-hover',
           )}
         >
           {buttonLabel}
         </button>
+
+        {!isClient && <OrgNotice />}
       </div>
 
       <div className='flex flex-1 flex-col gap-8'>
