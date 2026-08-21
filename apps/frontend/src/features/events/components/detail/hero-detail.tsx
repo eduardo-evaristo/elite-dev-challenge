@@ -5,6 +5,7 @@ import {
   normalizeClassification,
 } from '@/lib/classification';
 import { formatDuration, formatEventDate } from '@/lib/datetime';
+import { cn } from '@/lib/utils';
 import { TruncatedText } from './truncated-text';
 
 interface HeroDetailProps {
@@ -36,6 +37,8 @@ export function HeroDetail({
   description,
 }: HeroDetailProps) {
   const normalized = normalizeClassification(classification);
+  const imageDimensions =
+    variant === 'movie' ? 'h-[400px] w-[300px]' : 'h-[400px] w-[420px]';
 
   return (
     <>
@@ -51,10 +54,18 @@ export function HeroDetail({
           <img
             src={imageUrl}
             alt={title}
-            className='absolute right-[80px] top-[80px] h-[400px] w-[420px] rounded-md object-cover'
+            className={cn(
+              'absolute right-[80px] top-[80px] rounded-md object-cover',
+              imageDimensions,
+            )}
           />
         ) : (
-          <div className='absolute right-[80px] top-[80px] h-[400px] w-[420px] rounded-md bg-line' />
+          <div
+            className={cn(
+              'absolute right-[80px] top-[80px] rounded-md bg-line',
+              imageDimensions,
+            )}
+          />
         )}
 
         <div

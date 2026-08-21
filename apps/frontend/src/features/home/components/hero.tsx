@@ -58,7 +58,7 @@ export function Hero({ slides }: HeroProps) {
             'transition-colors hover:bg-curtain-hover',
           )}
         >
-          {slide.ctaLabel}
+          Ver Mais
         </button>
       </div>
 
