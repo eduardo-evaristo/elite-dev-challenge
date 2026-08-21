@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import {
   createFileRoute,
   redirect,
@@ -13,7 +13,6 @@ import { Footer } from '@/features/home/components/footer';
 import { SectionHeader } from '@/features/home/components/section-header';
 import { MovieCard } from '@/components/movie-card';
 import { EventCard } from '@/components/event-card';
-import { heroSlides } from '@/features/home/constants';
 import { useInfiniteScroll } from '@/features/home/hooks/use-infinite-scroll';
 import { useEventsList } from '@/features/events/hooks/use-events-list';
 import { useMoviesList } from '@/features/events/hooks/use-movies-list';
@@ -23,6 +22,7 @@ import {
 } from '@/features/events/queries';
 import { meQueryOptions } from '@/features/auth/queries';
 import { formatDuration, formatEventDate } from '@/lib/datetime';
+import type { HeroSlide } from '@/features/home/types';
 
 export const Route = createFileRoute('/')({
   beforeLoad: async ({ context }) => {
@@ -58,6 +58,40 @@ function RouteComponent() {
 
   const movies = moviesQuery.data?.pages.flatMap((p) => p.items) ?? [];
   const shows = showsQuery.data?.pages.flatMap((p) => p.items) ?? [];
+
+  const highlights = useMemo(() => {
+    const candidates = [
+      ...movies
+        .filter((m) => m.imageUrl && m.description)
+        .map((m) => ({
+          id: m.externalId,
+          title: m.name,
+          description: m.description!,
+          ctaLabel: 'Ver filme',
+          imageUrl: m.imageUrl,
+          href: `/filmes/${m.externalId}`,
+          variant: 'movie' as const,
+        })),
+      ...shows
+        .filter((s) => s.imageUrl && s.description)
+        .map((s) => ({
+          id: s.id,
+          title: s.name,
+          description: s.description!,
+          ctaLabel: 'Ver evento',
+          imageUrl: s.imageUrl,
+          href: `/eventos/${s.id}`,
+          variant: 'event' as const,
+        })),
+    ];
+
+    for (let i = candidates.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+    }
+
+    return candidates.slice(0, 5) as HeroSlide[];
+  }, [movies, shows]);
 
   const preloadMovie = (externalId: string) =>
     router.preloadRoute({
@@ -103,7 +137,7 @@ function RouteComponent() {
     <div className='min-h-screen bg-paper'>
       <Navbar />
 
-      <Hero slides={heroSlides} />
+      <Hero slides={highlights} />
 
       <section className='flex flex-col gap-4 px-4 py-8 md:gap-6 md:px-20 md:py-12'>
         <SectionHeader
