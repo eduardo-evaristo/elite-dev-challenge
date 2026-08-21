@@ -15,6 +15,7 @@ export function QrScanner({ onScan, enabled }: QrScannerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
   const enabledRef = useRef(enabled);
+  const isPausedRef = useRef(false);
 
   useEffect(() => {
     enabledRef.current = enabled;
@@ -70,9 +71,13 @@ export function QrScanner({ onScan, enabled }: QrScannerProps) {
   useEffect(() => {
     if (!scannerRef.current) return;
     if (enabled) {
-      scannerRef.current.resume();
+      if (isPausedRef.current) {
+        scannerRef.current.resume();
+        isPausedRef.current = false;
+      }
     } else {
       scannerRef.current.pause(true);
+      isPausedRef.current = true;
     }
   }, [enabled]);
 
