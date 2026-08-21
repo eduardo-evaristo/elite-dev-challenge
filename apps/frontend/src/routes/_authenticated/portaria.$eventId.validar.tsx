@@ -9,6 +9,7 @@ import { useValidateTicket } from '@/features/gate/hooks/use-validate-ticket';
 import { useEventDetail } from '@/features/events/hooks/use-event-detail';
 import { eventDetailOptions } from '@/features/events/queries';
 import { meQueryOptions } from '@/features/auth/queries';
+import { toastError } from '@/lib/toast';
 import type { ValidateTicketResponse } from '@elite-dev/shared';
 
 function formatEventMeta(date: string, location: string): string {
@@ -53,7 +54,10 @@ function ValidarComponent() {
     setScannerEnabled(false);
     validate.mutate(
       { publicId: id, signature: sig, expectedEventId: eventId },
-      { onSuccess: (res) => setResult(res) },
+      {
+        onSuccess: (res) => setResult(res),
+        onError: () => toastError('Erro ao validar ingresso. Tente novamente.'),
+      },
     );
   }
 
@@ -61,7 +65,10 @@ function ValidarComponent() {
     setScannerEnabled(false);
     validate.mutate(
       { manualEntryCode: code, expectedEventId: eventId },
-      { onSuccess: (res) => setResult(res) },
+      {
+        onSuccess: (res) => setResult(res),
+        onError: () => toastError('Erro ao validar ingresso. Tente novamente.'),
+      },
     );
   }
 

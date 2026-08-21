@@ -81,6 +81,7 @@ export interface UpdateEventRequest {
   eventClassification?: string;
   description?: string;
   duration?: number;
+  ticketTypes?: TicketTypeRequest[];
 }
 
 export interface QueryEventsParams {
@@ -88,6 +89,10 @@ export interface QueryEventsParams {
   size?: number;
   query?: string;
   type?: EventType;
+}
+
+export interface QueryMyEventsParams extends QueryEventsParams {
+  status?: EventStatus;
 }
 
 export interface SeatResponse {

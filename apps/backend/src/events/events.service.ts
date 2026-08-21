@@ -9,6 +9,7 @@ import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { QueryEventsDto } from './dto/query-events.dto';
 import { QueryMoviesDto } from './dto/query-movies.dto';
+import { QueryMyEventsDto } from './dto/query-my-events.dto';
 import { AuthenticatedUser } from 'src/auth/auth.types';
 import { Role, EventType, EventStatus } from 'src/generated/prisma/enums';
 
@@ -89,6 +90,35 @@ export class EventsService {
         name: { contains: query.query, mode: 'insensitive' as const },
       }),
       ...dateFilter,
+    };
+
+    const [items, totalResults] = await Promise.all([
+      this.eventsRepository.findMany({ where, skip, take: size }),
+      this.eventsRepository.count(where),
+    ]);
+
+    const totalPages = Math.ceil(totalResults / size);
+
+    return {
+      items: items.map((e) => this.toEventItem(e as EventData)),
+      page,
+      totalPages,
+      totalResults,
+    };
+  }
+
+  async findMine(user: AuthenticatedUser, query: QueryMyEventsDto) {
+    const page = query.page;
+    const size = query.size;
+    const skip = (page - 1) * size;
+
+    const where = {
+      organizerId: user.userId,
+      ...(query.status && { status: STATUS_MAP[query.status] }),
+      ...(query.type && { type: TYPE_MAP[query.type] }),
+      ...(query.query && {
+        name: { contains: query.query, mode: 'insensitive' as const },
+      }),
     };
 
     const [items, totalResults] = await Promise.all([
@@ -232,6 +262,23 @@ export class EventsService {
     return this.toEventDetailResponse(event);
   }
 
+  async findOneForEdit(id: string, user: AuthenticatedUser) {
+    const event = await this.eventsRepository.findById(
+      id,
+      EVENT_DETAIL_INCLUDE,
+    );
+
+    if (!event) {
+      throw new NotFoundException(`Event with id ${id} not found`);
+    }
+
+    if (user.role === Role.ORGANIZER && event.organizerId !== user.userId) {
+      throw new ForbiddenException('You can only edit your own events');
+    }
+
+    return this.toEventDetailResponse(event);
+  }
+
   async create(dto: CreateEventDto, userId: string) {
     const eventType = TYPE_MAP[dto.type];
 
@@ -313,9 +360,27 @@ export class EventsService {
       ...(dto.duration !== undefined && { duration: dto.duration }),
     };
 
-    const updated = await this.eventsRepository.update(id, data);
+    if (dto.ticketTypes && dto.ticketTypes.length > 0) {
+      await this.eventsRepository.deleteTicketTypes(id);
+      await this.eventsRepository.createTicketTypes(
+        id,
+        dto.ticketTypes.map((t) => ({
+          name: t.name,
+          price: t.price,
+          capacity: t.capacity,
+          availableCount: t.capacity,
+        })),
+      );
+    }
 
-    return this.toEventItem(updated);
+    await this.eventsRepository.update(id, data);
+
+    const eventWithTicketTypes = await this.eventsRepository.findById(
+      id,
+      EVENT_DETAIL_INCLUDE,
+    );
+
+    return this.toEventDetailResponse(eventWithTicketTypes!);
   }
 
   async remove(id: string, user: AuthenticatedUser) {

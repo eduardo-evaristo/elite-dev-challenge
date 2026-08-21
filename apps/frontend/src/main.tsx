@@ -56,6 +56,7 @@ if (!rootElement.innerHTML) {
           style: {
             background: '#ffffff',
             border: '1px solid #d8d2c4',
+            borderRadius: 12,
             color: '#221f1c',
             fontFamily: 'IBM Plex Sans, sans-serif',
           },

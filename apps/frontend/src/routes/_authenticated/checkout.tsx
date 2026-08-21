@@ -12,6 +12,7 @@ import { useEventDetail } from '@/features/events/hooks/use-event-detail';
 import { useGetMe } from '@/features/auth/hooks/use-get-me';
 import { useCancelReservation } from '@/features/checkout/hooks/use-cancel-reservation';
 import { eventDetailOptions } from '@/features/events/queries';
+import { toastError } from '@/lib/toast';
 import {
   checkoutSearchSchema,
   type CheckoutSearch,
@@ -46,6 +47,7 @@ function CheckoutComponent() {
     if (reservationId) {
       cancelReservation.mutate(reservationId, {
         onSettled: navigateAfterCancel,
+        onError: () => toastError('Erro ao cancelar reserva.'),
       });
     } else {
       navigateAfterCancel();

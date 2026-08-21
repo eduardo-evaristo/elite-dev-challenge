@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { usePayReservation } from '@/features/checkout/hooks/use-pay-reservation';
+import { toastError, toastSuccess } from '@/lib/toast';
 import { cn } from '@/lib/utils';
 import { maskCardNumber, maskExpiry } from '@/lib/masks';
 import { cardDataSchema, type CardData } from '../schemas';
@@ -26,7 +26,6 @@ export function PaymentForm({
 }: PaymentFormProps) {
   const navigate = useNavigate();
   const payReservation = usePayReservation();
-  const [payError, setPayError] = useState<string | null>(null);
 
   const {
     register,
@@ -38,7 +37,6 @@ export function PaymentForm({
   });
 
   const onSubmit = async (data: CardData) => {
-    setPayError(null);
     const cardNumber = data.cardNumber.replace(/\D/g, '');
 
     for (const id of reservationIds) {
@@ -46,19 +44,20 @@ export function PaymentForm({
         const result = await payReservation.mutateAsync({ id, cardNumber });
 
         if ('status' in result) {
-          setPayError('Pagamento recusado. Tente com outro cartão.');
+          toastError('Pagamento recusado. Tente com outro cartão.');
           return;
         }
       } catch (err) {
         if (isAxiosError(err) && err.response?.status === 400) {
-          setPayError('Pagamento recusado. Tente com outro cartão.');
+          toastError('Pagamento recusado. Tente com outro cartão.');
           return;
         }
-        setPayError('Erro ao processar pagamento. Tente novamente.');
+        toastError('Erro ao processar pagamento. Tente novamente.');
         return;
       }
     }
 
+    toastSuccess('Pagamento realizado com sucesso!');
     navigate({ to: '/meus-ingressos' });
   };
 
@@ -201,10 +200,6 @@ export function PaymentForm({
           </div>
         </form>
       </div>
-
-      {payError && (
-        <p className='text-sm font-medium text-red-500'>{payError}</p>
-      )}
 
       {/* Button row */}
       <div className='flex items-center justify-between'>

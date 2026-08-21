@@ -15,6 +15,7 @@ import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { QueryEventsDto } from './dto/query-events.dto';
 import { QueryMoviesDto } from './dto/query-movies.dto';
+import { QueryMyEventsDto } from './dto/query-my-events.dto';
 import { Roles } from 'src/common/roles.decorator';
 import { RolesGuard } from 'src/common/roles.guard';
 import { Role } from 'src/generated/prisma/enums';
@@ -24,6 +25,16 @@ import type { AuthenticatedUser } from 'src/auth/auth.types';
 @Controller('events')
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
+
+  @Get('mine')
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles(Role.ORGANIZER, Role.ADMIN)
+  findMine(
+    @Query() query: QueryMyEventsDto,
+    @Req() req: Request & { user: AuthenticatedUser },
+  ) {
+    return this.eventsService.findMine(req.user, query);
+  }
 
   @Get()
   findAll(@Query() query: QueryEventsDto) {
@@ -38,6 +49,16 @@ export class EventsController {
   @Get('movies/:externalId/sessions')
   findMovieSessions(@Param('externalId') externalId: string) {
     return this.eventsService.findMovieSessions(externalId);
+  }
+
+  @Get(':id/edit')
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles(Role.ORGANIZER, Role.ADMIN)
+  findOneForEdit(
+    @Param('id') id: string,
+    @Req() req: Request & { user: AuthenticatedUser },
+  ) {
+    return this.eventsService.findOneForEdit(id, req.user);
   }
 
   @Get(':id')

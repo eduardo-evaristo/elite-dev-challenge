@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
-import { toast } from 'sonner';
+import { toastError } from '@/lib/toast';
 
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/features/home/components/footer';
@@ -36,7 +36,7 @@ function RouteComponent() {
   useEffect(() => {
     if (sessionStorage.getItem('reservation_expired') === '1') {
       sessionStorage.removeItem('reservation_expired');
-      toast.error('Sua reserva expirou. Tente novamente.');
+      toastError('Sua reserva expirou. Tente novamente.');
     }
   }, []);
 

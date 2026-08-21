@@ -25,11 +25,12 @@ export class AuthController {
 
   private get cookieOptions() {
     const isProd = this.configService.get('NODE_ENV') === 'production';
+    const sameSite: 'none' | 'lax' = isProd ? 'none' : 'lax';
     return {
       httpOnly: true,
       path: '/',
       secure: isProd,
-      sameSite: (isProd ? 'none' : 'lax') as 'none' | 'lax',
+      sameSite,
       domain: this.configService.get<string>('COOKIE_DOMAIN'),
     };
   }

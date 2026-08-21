@@ -4,6 +4,7 @@ import type {
   MovieAggregatedDetail,
   PaginatedEventResult,
   PaginatedMovieListResult,
+  UpdateEventRequest,
 } from '@elite-dev/shared';
 
 import { httpClient } from '@/lib/http-client';
@@ -35,6 +36,25 @@ export async function listEvents(params: {
   return data;
 }
 
+export async function listMyEvents(params: {
+  page?: number;
+  size?: number;
+  query?: string;
+  type?: 'movie' | 'show';
+  status?: string;
+}): Promise<PaginatedEventResult> {
+  const { data } = await httpClient.get<PaginatedEventResult>('/events/mine', {
+    params: {
+      page: params.page ?? 1,
+      size: params.size ?? 20,
+      query: params.query,
+      type: params.type,
+      status: params.status,
+    },
+  });
+  return data;
+}
+
 export async function listMovies(params: {
   page?: number;
   size?: number;
@@ -53,6 +73,29 @@ export async function listMovies(params: {
 
 export async function getEventDetail(id: string): Promise<EventDetailResponse> {
   const { data } = await httpClient.get<EventDetailResponse>(`/events/${id}`);
+  return data;
+}
+
+export async function getEventForEdit(
+  id: string,
+): Promise<EventDetailResponse> {
+  const { data } = await httpClient.get<EventDetailResponse>(
+    `/events/${id}/edit`,
+  );
+  return data;
+}
+
+export async function updateEvent(
+  id: string,
+  payload: UpdateEventRequest,
+): Promise<EventDetailResponse> {
+  const { data } = await httpClient.patch<EventDetailResponse>(
+    `/events/${id}`,
+    {
+      ...payload,
+      ...(payload.status && { status: payload.status.toLowerCase() }),
+    },
+  );
   return data;
 }
 

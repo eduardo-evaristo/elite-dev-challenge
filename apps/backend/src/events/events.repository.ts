@@ -50,4 +50,22 @@ export class EventsRepository {
   update(id: string, data: EventUpdateInput): Promise<EventModel> {
     return this.prisma.event.update({ where: { id }, data });
   }
+
+  async deleteTicketTypes(eventId: string): Promise<void> {
+    await this.prisma.ticketType.deleteMany({ where: { eventId } });
+  }
+
+  createTicketTypes(
+    eventId: string,
+    ticketTypes: {
+      name: string;
+      price: number;
+      capacity: number;
+      availableCount: number;
+    }[],
+  ) {
+    return this.prisma.ticketType.createMany({
+      data: ticketTypes.map((t) => ({ ...t, eventId })),
+    });
+  }
 }

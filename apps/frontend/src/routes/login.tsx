@@ -8,6 +8,7 @@ import { loginSchema, type LoginFormData } from '@/features/auth/schemas';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toastError } from '@/lib/toast';
 
 const loginSearchSchema = z.object({
   redirect: z.string().optional(),
@@ -38,9 +39,7 @@ function RouteComponent() {
         }
       },
       onError: () => {
-        form.setError('root', {
-          message: 'Credenciais inválidas. Tente novamente.',
-        });
+        toastError('Credenciais inválidas. Tente novamente.');
       },
     });
   };
@@ -70,12 +69,6 @@ function RouteComponent() {
             onSubmit={form.handleSubmit(onSubmit)}
             className='flex flex-col gap-4'
           >
-            {form.formState.errors.root && (
-              <p className='text-sm text-red-500'>
-                {form.formState.errors.root.message}
-              </p>
-            )}
-
             <div className='flex flex-col gap-6'>
               <Label className='flex flex-col gap-2'>
                 <span className='text-[13px] font-semibold text-ink'>

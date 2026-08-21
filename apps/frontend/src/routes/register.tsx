@@ -7,6 +7,7 @@ import { registerSchema, type RegisterFormData } from '@/features/auth/schemas';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toastError } from '@/lib/toast';
 
 export const Route = createFileRoute('/register')({
   component: RouteComponent,
@@ -25,9 +26,7 @@ function RouteComponent() {
     register.mutate(data, {
       onSuccess: () => navigate({ to: '/' }),
       onError: () => {
-        form.setError('root', {
-          message: 'Erro ao cadastrar. Verifique os dados.',
-        });
+        toastError('Erro ao cadastrar. Verifique os dados.');
       },
     });
   };
@@ -52,12 +51,6 @@ function RouteComponent() {
             onSubmit={form.handleSubmit(onSubmit)}
             className='flex flex-col gap-5'
           >
-            {form.formState.errors.root && (
-              <p className='text-sm text-red-500'>
-                {form.formState.errors.root.message}
-              </p>
-            )}
-
             <div className='flex flex-col gap-4 sm:flex-row'>
               <Label className='flex flex-1 flex-col gap-2'>
                 <span className='text-[13px] font-medium text-muted-ink'>

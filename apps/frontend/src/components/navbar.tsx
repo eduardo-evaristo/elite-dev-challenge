@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Menu, X, User, LogOut } from 'lucide-react';
+import { Menu, X, User, LogOut } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 
 import { useGetMe } from '@/features/auth/hooks/use-get-me';
@@ -14,34 +14,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-const clientLinks = [
-  { label: 'Filmes', href: '#' },
-  { label: 'Eventos', href: '#' },
-];
-
-const organizerLinks = [
-  { label: 'Painel', href: '#' },
-  { label: 'Eventos', href: '#' },
-  { label: 'Relatórios', href: '#' },
-];
-
-const gateLinks: { label: string; href: string }[] = [];
-
 export function Navbar() {
   const { data: user } = useGetMe();
   const logoutMutation = useLogout();
   const role = user?.role ?? null;
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-
-  const links =
-    role === 'ORGANIZER'
-      ? organizerLinks
-      : role === 'GATE'
-        ? gateLinks
-        : clientLinks;
-  const searchPlaceholder =
-    role === 'ORGANIZER' ? 'Buscar...' : 'Buscar eventos, filmes...';
 
   return (
     <>
@@ -55,59 +32,10 @@ export function Navbar() {
             <Menu className='size-5' />
           </button>
 
-          <span className='text-[22px] font-bold text-ink'>guichê</span>
-
-          <nav className='hidden items-center gap-6 md:flex'>
-            {links.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className='text-sm font-medium text-muted-foreground transition-colors hover:text-ink'
-              >
-                {link.label}
-              </a>
-            ))}
-          </nav>
+          <Link to='/' className='text-[22px] font-bold text-ink'>guichê</Link>
         </div>
 
         <div className='flex items-center gap-3'>
-          {searchOpen ? (
-            <div className='flex items-center gap-1 rounded-md bg-paper px-3 py-2'>
-              <Search className='size-4 text-muted-foreground' />
-              <input
-                type='text'
-                placeholder={searchPlaceholder}
-                autoFocus
-                onBlur={() => setSearchOpen(false)}
-                className='w-40 bg-transparent text-[13px] text-muted-foreground placeholder:text-muted-foreground focus:outline-none sm:w-60'
-              />
-              <button
-                onClick={() => setSearchOpen(false)}
-                className='text-muted-foreground hover:text-ink'
-                aria-label='Fechar busca'
-              >
-                <X className='size-4' />
-              </button>
-            </div>
-          ) : (
-            <button
-              className='text-muted-foreground transition-colors hover:text-ink lg:hidden'
-              onClick={() => setSearchOpen(true)}
-              aria-label='Buscar'
-            >
-              <Search className='size-5' />
-            </button>
-          )}
-
-          <div className='hidden items-center gap-1 rounded-md bg-paper px-3 py-2 lg:flex'>
-            <Search className='size-4 text-muted-foreground' />
-            <input
-              type='text'
-              placeholder={searchPlaceholder}
-              className='bg-transparent text-[13px] text-muted-foreground placeholder:text-muted-foreground focus:outline-none'
-            />
-          </div>
-
           {role === 'CLIENT' && (
             <Link
               to='/meus-ingressos'
@@ -122,52 +50,54 @@ export function Navbar() {
 
           {role === 'ORGANIZER' && (
             <Link
-              to='/organizador/eventos/novo'
-              search={{ step: 1 }}
+              to='/organizador/eventos'
               className={cn(
                 'hidden rounded-md bg-curtain px-4 py-2 text-sm font-semibold text-white md:block',
                 'transition-colors hover:bg-curtain-hover',
               )}
             >
-              Criar evento
+              Meus eventos
             </Link>
           )}
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className='text-muted-foreground transition-colors hover:text-ink'>
-                <User className='size-5' />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align='end'>
-              {user ? (
-                <>
-                  <DropdownMenuLabel>
-                    {user.name} {user.lastName}
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => logoutMutation.mutate()}
-                    className='text-destructive focus:text-destructive'
-                  >
-                    <LogOut className='mr-2 size-4' />
-                    Sair
-                  </DropdownMenuItem>
-                </>
-              ) : (
-                <>
-                  <DropdownMenuLabel>Conta</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to='/login'>Entrar</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to='/register'>Criar conta</Link>
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className='text-muted-foreground transition-colors hover:text-ink'>
+                  <User className='size-5' />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end'>
+                <DropdownMenuLabel>
+                  {user.name} {user.lastName}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => logoutMutation.mutate()}
+                  className='text-destructive focus:text-destructive'
+                >
+                  <LogOut className='mr-2 size-4' />
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <div className='flex items-center gap-1'>
+              <Link
+                to='/login'
+                className='text-sm font-medium text-muted-foreground transition-colors hover:text-curtain'
+              >
+                Faça Login
+              </Link>
+              <span className='text-sm text-muted-foreground'>/</span>
+              <Link
+                to='/register'
+                className='text-sm font-medium text-muted-foreground transition-colors hover:text-curtain'
+              >
+                Cadastre-se
+              </Link>
+            </div>
+          )}
         </div>
       </header>
 
@@ -191,31 +121,7 @@ export function Navbar() {
               </button>
             </div>
 
-            <div className='mb-6 flex items-center gap-1 rounded-md bg-paper px-3 py-2'>
-              <Search className='size-4 text-muted-foreground' />
-              <input
-                type='text'
-                placeholder={searchPlaceholder}
-                className='w-full bg-transparent text-[13px] text-muted-foreground placeholder:text-muted-foreground focus:outline-none'
-              />
-            </div>
-
             <div className='mb-6 h-px bg-line' />
-
-            <nav className='flex flex-col gap-4'>
-              {links.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  className='text-sm font-medium text-muted-foreground transition-colors hover:text-ink'
-                  onClick={() => setDrawerOpen(false)}
-                >
-                  {link.label}
-                </a>
-              ))}
-            </nav>
-
-            <div className='my-6 h-px bg-line' />
 
             {role === 'CLIENT' && (
               <Link
@@ -232,33 +138,33 @@ export function Navbar() {
 
             {role === 'ORGANIZER' && (
               <Link
-                to='/organizador/eventos/novo'
-                search={{ step: 1 }}
+                to='/organizador/eventos'
                 className={cn(
                   'mb-4 block rounded-md bg-curtain px-4 py-2 text-center text-sm font-semibold text-white',
                   'transition-colors hover:bg-curtain-hover',
                 )}
                 onClick={() => setDrawerOpen(false)}
               >
-                Criar evento
+                Meus eventos
               </Link>
             )}
 
             {!user && (
-              <div className='flex flex-col gap-3'>
+              <div className='flex items-center gap-1'>
                 <Link
                   to='/login'
-                  className='text-sm font-medium text-muted-foreground transition-colors hover:text-ink'
+                  className='text-sm font-medium text-muted-foreground transition-colors hover:text-curtain'
                   onClick={() => setDrawerOpen(false)}
                 >
-                  Entrar
+                  Faça Login
                 </Link>
+                <span className='text-sm text-muted-foreground'>/</span>
                 <Link
                   to='/register'
-                  className='text-sm font-medium text-muted-foreground transition-colors hover:text-ink'
+                  className='text-sm font-medium text-muted-foreground transition-colors hover:text-curtain'
                   onClick={() => setDrawerOpen(false)}
                 >
-                  Criar conta
+                  Cadastre-se
                 </Link>
               </div>
             )}

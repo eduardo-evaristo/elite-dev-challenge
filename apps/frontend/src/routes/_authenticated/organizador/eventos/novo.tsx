@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,6 +27,7 @@ import { StepDetails } from '@/features/events/components/step-details';
 import { StepReview } from '@/features/events/components/step-review';
 import { useCreateEvent } from '@/features/events/hooks/use-create-event';
 import { combineDateAndTime } from '@/lib/datetime';
+import { toastError, toastSuccess } from '@/lib/toast';
 
 export const Route = createFileRoute(
   '/_authenticated/organizador/eventos/novo',
@@ -188,7 +189,6 @@ function NovoEventoComponent() {
   const isStep5 = search.step === 5;
 
   const createEventMutation = useCreateEvent();
-  const [, setSubmitError] = useState<string | null>(null);
 
   const buildPayload = (
     status: 'draft' | 'published' | undefined,
@@ -279,31 +279,35 @@ function NovoEventoComponent() {
   };
 
   const onPublish = () => {
-    setSubmitError(null);
     const payload = buildPayload(undefined);
     if (!payload) return;
     createEventMutation.mutate(payload, {
-      onSuccess: onSubmitSuccess,
+      onSuccess: () => {
+        toastSuccess('Evento publicado com sucesso!');
+        onSubmitSuccess();
+      },
       onError: (error) => {
         const message = isAxiosError(error)
           ? (error.response?.data as { message?: string })?.message
           : undefined;
-        setSubmitError(message ?? 'Erro ao publicar evento. Tente novamente.');
+        toastError(message ?? 'Erro ao publicar evento. Tente novamente.');
       },
     });
   };
 
   const onSaveDraft = () => {
-    setSubmitError(null);
     const payload = buildPayload('draft');
     if (!payload) return;
     createEventMutation.mutate(payload, {
-      onSuccess: onSubmitSuccess,
+      onSuccess: () => {
+        toastSuccess('Rascunho salvo com sucesso!');
+        onSubmitSuccess();
+      },
       onError: (error) => {
         const message = isAxiosError(error)
           ? (error.response?.data as { message?: string })?.message
           : undefined;
-        setSubmitError(message ?? 'Erro ao salvar rascunho. Tente novamente.');
+        toastError(message ?? 'Erro ao salvar rascunho. Tente novamente.');
       },
     });
   };

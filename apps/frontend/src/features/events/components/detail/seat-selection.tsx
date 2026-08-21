@@ -7,6 +7,7 @@ import type { SeatResponse } from '@elite-dev/shared';
 import { useGetMe } from '@/features/auth/hooks/use-get-me';
 import { useCreateReservation } from '@/features/checkout/hooks/use-create-reservation';
 import { formatCurrency } from '@/lib/currency';
+import { toastError } from '@/lib/toast';
 import { cn } from '@/lib/utils';
 import { SeatMap } from './seat-map';
 
@@ -29,10 +30,8 @@ export function SeatSelection({
   const { data: user } = useGetMe();
   const createReservation = useCreateReservation();
   const [selectedSeatId, setSelectedSeatId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const toggleSeat = (seatId: string) => {
-    setError(null);
     setSelectedSeatId((prev) => (prev === seatId ? null : seatId));
   };
 
@@ -54,7 +53,6 @@ export function SeatSelection({
 
     if (!hasSelection || isReserving) return;
 
-    setError(null);
     const reservationIds: string[] = [];
     let expiresAt: string | undefined;
 
@@ -67,10 +65,10 @@ export function SeatSelection({
       expiresAt = res.expiresAt ?? undefined;
     } catch (err) {
       if (isAxiosError(err) && err.response?.status === 409) {
-        setError('Este assento acabou de ser reservado por outra pessoa.');
+        toastError('Este assento acabou de ser reservado por outra pessoa.');
         return;
       }
-      setError('Erro ao reservar assentos. Tente novamente.');
+      toastError('Erro ao reservar assentos. Tente novamente.');
       return;
     }
 
@@ -147,8 +145,6 @@ export function SeatSelection({
             </p>
           </div>
         )}
-
-        {error && <p className='text-sm font-medium text-red-500'>{error}</p>}
 
         <button
           type='button'

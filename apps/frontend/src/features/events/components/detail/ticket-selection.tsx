@@ -7,6 +7,7 @@ import type { TicketTypeResponse } from '@elite-dev/shared';
 import { useGetMe } from '@/features/auth/hooks/use-get-me';
 import { useCreateReservation } from '@/features/checkout/hooks/use-create-reservation';
 import { formatCurrency } from '@/lib/currency';
+import { toastError } from '@/lib/toast';
 import { cn } from '@/lib/utils';
 
 interface TicketSelectionProps {
@@ -24,7 +25,6 @@ export function TicketSelection({
   const [selectedTicketTypeId, setSelectedTicketTypeId] = useState<
     string | null
   >(null);
-  const [error, setError] = useState<string | null>(null);
 
   const selected = ticketTypes.find((t) => t.id === selectedTicketTypeId);
   const isReserving = createReservation.isPending;
@@ -39,8 +39,6 @@ export function TicketSelection({
     }
 
     if (!selected || isReserving) return;
-
-    setError(null);
 
     try {
       const res = await createReservation.mutateAsync({
@@ -61,10 +59,10 @@ export function TicketSelection({
       });
     } catch (err) {
       if (isAxiosError(err) && err.response?.status === 409) {
-        setError('Este setor acabou de esgotar.');
+        toastError('Este setor acabou de esgotar.');
         return;
       }
-      setError('Erro ao reservar ingresso. Tente novamente.');
+      toastError('Erro ao reservar ingresso. Tente novamente.');
     }
   };
 
@@ -116,8 +114,6 @@ export function TicketSelection({
             </p>
           </div>
         )}
-
-        {error && <p className='text-sm font-medium text-red-500'>{error}</p>}
 
         <button
           type='button'
